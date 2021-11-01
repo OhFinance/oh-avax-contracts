@@ -1,0 +1,56 @@
+{
+  "name": "@oh-finance/oh-avax-contracts",
+  "version": "1.0.0",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OhFinance/oh-avax-contracts.git"
+  },
+  "author": "Oh! Finance <hello@oh.finance>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OhFinance/oh-avax-contracts/issues"
+  },
+  "homepage": "https://github.com/OhFinance/oh-avax-contracts#readme",
+  "devDependencies": {
+    "@ethereum-waffle/chai": "^3.2.2",
+    "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
+    "@nomiclabs/hardhat-etherscan": "^2.1.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/contracts": "3.4.1",
+    "@openzeppelin/contracts-upgradeable": "3.4.1",
+    "@studydefi/money-legos": "^2.4.1",
+    "@typechain/ethers-v5": "^7.0.0",
+    "@typechain/hardhat": "^2.0.1",
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.2.0",
+    "@types/node": "^14.14.22",
+    "@uniswap/v2-core": "^1.0.1",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "chai": "^4.2.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^8.2.0",
+    "ethereum-waffle": "^3.3.0",
+    "ethers": "^5.3.0",
+    "hardhat": "^2.0.6",
+    "hardhat-abi-exporter": "^2.0.7",
+    "hardhat-deploy": "^0.7.10",
+    "hardhat-gas-reporter": "^1.0.4",
+    "hardhat-spdx-license-identifier": "^2.0.3",
+    "hardhat-typechain": "^0.3.4",
+    "prettier": "^2.2.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.9",
+    "solc": "0.7.6",
+    "ts-generator": "^0.1.1",
+    "ts-node": "^9.1.1",
+    "tsconfig-paths": "^3.9.0",
+    "typechain": "^5.0.0",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "@ohfinance/oh-contracts": "^1.2.0"
+  }
+}
