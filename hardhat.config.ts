@@ -28,10 +28,14 @@ const config: HardhatUserConfig = {
     },
   },
   namedAccounts: {
-    deployer: 0
+    deployer: 0,
+    token: ''
   },
   paths: {
     deploy: "./deploy",
+  },
+  typechain: {
+    outDir: './types',
   },
   external: {
     contracts: [
