@@ -10,7 +10,7 @@ export const getInitializeAaveV2StrategyData = async (
   const {aaveLendingPool, aaveIncentivesController, wavax} = await getNamedAccounts();
   const strategyInterface = new ethers.utils.Interface(OhAvalancheAaveV2Strategy);
   const initializeData = strategyInterface.encodeFunctionData(
-    'initializeAaveV2Strategy(address,address,address,address,address,address,address,address)',
+    'initializeAaveV2Strategy(address,address,address,address,address,address,address)',
     [
       registry,
       bank,

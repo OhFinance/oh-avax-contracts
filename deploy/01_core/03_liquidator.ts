@@ -21,7 +21,12 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 
 
+  if (result.newlyDeployed) {
   // add route [wavax, usdce]
+
+  }
 }
 
+deploy.tags = ['Core', 'OhLiquidator'];
+deploy.dependencies = ['OhRegistry'];
 export default deploy

@@ -5,7 +5,7 @@ import {getInitializeAaveV2StrategyData} from 'lib/strategy';
 // deploy the Oh! USDC Bank Proxies
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployments, ethers, getNamedAccounts} = hre;
-  const {deployer, usdc, aaveUsdcToken} = await getNamedAccounts();
+  const {deployer, usdce, aaveUsdce} = await getNamedAccounts();
   const {deploy, log} = deployments;
 
   log('USDC.e - Oh! USDCE AaveV2 Strategy');
@@ -19,8 +19,8 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const data = await getInitializeAaveV2StrategyData(
     registry.address,
     ohUsdcBank.address,
-    usdc,
-    aaveUsdcToken
+    usdce,
+    aaveUsdce
   );
   const constructorArgs = [aaveV2Logic.address, proxyAdmin.address, data];
 

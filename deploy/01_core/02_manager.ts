@@ -28,5 +28,5 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 deploy.tags = ['Core', 'OhManager'];
-deploy.dependencies = ['OhRegistry', 'OhToken'];
+deploy.dependencies = ['OhRegistry'];
 export default deploy;
