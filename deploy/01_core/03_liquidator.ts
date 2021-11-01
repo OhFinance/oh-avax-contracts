@@ -11,7 +11,6 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   log('Core - Liquidator');
 
   const registry = await ethers.getContract('OhRegistry');
-  const token = await ethers.getContract('OhToken');
 
   const result = await deploy('OhLiquidatorV2', {
     from: deployer,
@@ -21,6 +20,8 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     skipIfAlreadyDeployed: true,
   });
 
+
+  // add route [wavax, usdce]
 }
 
 export default deploy

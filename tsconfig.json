@@ -19,6 +19,7 @@
   ],
   "include": [
     "deploy",
+    "lib",
     "test"
   ],
   "exclude": ["node_modules"]
