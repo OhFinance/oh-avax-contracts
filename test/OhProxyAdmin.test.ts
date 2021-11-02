@@ -1,6 +1,6 @@
 import {expect} from 'chai';
-import { deployments, ethers, getNamedAccounts } from 'hardhat';
-import { OhProxyAdmin } from '@ohfinance/oh-contracts/types';
+import { deployments, getNamedAccounts } from 'hardhat';
+import { getProxyAdminContract, getRegistryContract } from '@ohfinance/oh-contracts/utils';
 
 describe('OhProxyAdmin', () => {
 
@@ -10,8 +10,8 @@ describe('OhProxyAdmin', () => {
 
   it('is deployed correctly', async () => {
     const {deployer} = await getNamedAccounts();
-    const registry = await ethers.getContract('OhRegistry', deployer)
-    const proxyAdmin = await ethers.getContract('OhProxyAdmin', deployer) as OhProxyAdmin
+    const registry = await getRegistryContract(deployer)
+    const proxyAdmin = await getProxyAdminContract(deployer)
 
     const registryAddress = await proxyAdmin.registry();
     const owner = await proxyAdmin.owner();

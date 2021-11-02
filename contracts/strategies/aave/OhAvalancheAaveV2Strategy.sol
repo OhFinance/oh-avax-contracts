@@ -78,7 +78,11 @@ contract OhAvalancheAaveV2Strategy is IStrategy, OhAvalancheAaveV2Helper, OhStra
 
     /// @dev Compound stkAAVE rewards on a alternating cooldown schedule
     function _compound() internal {
-        
+        claimRewards(incentivesController(), derivative());
+        uint256 amount = rewardBalance();
+        if (amount > 0) {
+            liquidate(reward(), underlying(), amount);
+        }
     }
 
     function _deposit() internal {

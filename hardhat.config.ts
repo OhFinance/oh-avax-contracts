@@ -14,7 +14,7 @@ import '@nomiclabs/hardhat-waffle';
 import '@typechain/hardhat';
 import 'hardhat-abi-exporter';
 import 'hardhat-deploy';
-import 'hardhat-gas-reporter';
+// import 'hardhat-gas-reporter';
 import 'hardhat-spdx-license-identifier';
 
 const config: HardhatUserConfig = {
@@ -38,6 +38,12 @@ const config: HardhatUserConfig = {
     usdce: {
       43114: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664', // USDC.e
     },
+    benqi: {
+      43114: '0x8729438EB15e2C8B576fCc6AeCdA6A148776C0F5'
+    },
+    joe: {
+      43114: '0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd'
+    },
     wavax: {
       43114: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
     },
@@ -52,9 +58,9 @@ const config: HardhatUserConfig = {
       43113: '0xa1EF206fb9a8D8186157FC817fCddcC47727ED55',
       43114: '0x01D83Fe6A10D2f2B7AF17034343746188272cAc9',
     },
-  },
-  paths: {
-    deploy: "./deploy",
+    joeRouter: {
+      43114: '0x60aE616a2155Ee3d9A68541Ba4544862310933d4'
+    }
   },
   typechain: {
     outDir: './types',

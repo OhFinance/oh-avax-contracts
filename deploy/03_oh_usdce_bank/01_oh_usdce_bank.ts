@@ -1,6 +1,6 @@
 import {DeployFunction} from 'hardhat-deploy/types';
 import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {getInitializeBankData} from 'lib/bank';
+import {getInitializeBankData} from '@ohfinance/oh-contracts/lib';
 
 // deploy the Oh! USDC Bank Proxies
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -19,13 +19,12 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const constructorArguments = [bankLogic.address, proxyAdmin.address, data]
 
   // deploy the Oh! USDC Bank Proxy
-  const ohUsdcBank = await deploy('OhUsdceBank', {
+  await deploy('OhUsdceBank', {
     from: deployer,
     contract: 'OhUpgradeableProxy',
     args: constructorArguments,
     log: true,
     deterministicDeployment: false,
-    skipIfAlreadyDeployed: false,
   });
 };
 

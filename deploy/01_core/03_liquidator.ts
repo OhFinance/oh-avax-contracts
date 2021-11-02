@@ -22,8 +22,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 
   if (result.newlyDeployed) {
-  // add route [wavax, usdce]
-
+    
   }
 }
 

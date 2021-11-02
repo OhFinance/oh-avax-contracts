@@ -1,3 +1,4 @@
+import { getRegistryContract } from '@ohfinance/oh-contracts/utils';
 import {expect} from 'chai';
 import {deployments, ethers, getNamedAccounts} from 'hardhat';
 
@@ -13,7 +14,7 @@ describe('OhRegistry', () => {
       
       
       const {deployer} = await getNamedAccounts();
-      const registry = await ethers.getContract('OhRegistry', deployer);
+      const registry = await getRegistryContract(deployer);
 
       const governorAddress = await registry.governance();
       const managerAddress = await registry.manager();
