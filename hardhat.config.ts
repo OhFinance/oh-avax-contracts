@@ -58,6 +58,12 @@ const config: HardhatUserConfig = {
       43113: '0xa1EF206fb9a8D8186157FC817fCddcC47727ED55',
       43114: '0x01D83Fe6A10D2f2B7AF17034343746188272cAc9',
     },
+    benqiUsdce: {
+      43114: '0xBEb5d47A3f720Ec0a390d04b4d41ED7d9688bC7F' // qiUSDC
+    },
+    benqiComptroller: {
+      43114: '0x486Af39519B4Dc9a7fCcd318217352830E8AD9b4'
+    },
     joeRouter: {
       43114: '0x60aE616a2155Ee3d9A68541Ba4544862310933d4'
     }
