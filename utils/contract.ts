@@ -1,6 +1,6 @@
-import { getBankContract, getCompoundStrategyContract, getUpgradeableProxy } from "@ohfinance/oh-contracts/utils";
+import { getBankContract, getUpgradeableProxy } from "@ohfinance/oh-contracts/utils";
 import { ethers } from "hardhat";
-import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy } from "types";
+import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy } from "types";
 
 export const getAvalancheAaveV2StrategyContract = async (signer: string, at?: string) => {
   if (at) {
@@ -16,7 +16,12 @@ export const getAvalancheBenqiStrategyContract = async (signer: string, at?: str
   return (await ethers.getContract('OhAvalancheBenqiStrategy', signer)) as OhAvalancheBenqiStrategy;
 };
 
-
+export const getAvalancheBankerJoeStrategyContract = async (signer: string, at?: string) => {
+  if (at) {
+    return (await ethers.getContractAt('OhAvalancheBankerJoeStrategy', at, signer)) as OhAvalancheBankerJoeStrategy;
+  }
+  return (await ethers.getContract('OhAvalancheBankerJoeStrategy', signer)) as OhAvalancheBankerJoeStrategy;
+};
 
 export const getUsdceBankProxyContract = async (signer: string) => {
   return await getUpgradeableProxy(signer, 'OhUsdceBank');
@@ -45,11 +50,11 @@ export const getUsdceBenqiStrategyContract = async (signer:string) => {
   return await getAvalancheBenqiStrategyContract(signer, proxy.address);
 }
 
-export const getUsdceTraderJoeStrategyProxyContract = async (signer: string) => {
-  return await getUpgradeableProxy(signer, 'OhUsdceTraderJoeStrategy');
+export const getUsdceBankerJoeStrategyProxyContract = async (signer: string) => {
+  return await getUpgradeableProxy(signer, 'OhUsdceBankerJoeStrategy');
 };
 
-// export const getUsdceTraderJoeStrategyContract = async (signer:string) => {
-//   const proxy = await getUsdceTraderJoeStrategyProxyContract(signer);
-//   return await getCompoundStrategyContract(signer, proxy.address);
-// }
+export const getUsdceBankerJoeStrategyContract = async (signer:string) => {
+  const proxy = await getUsdceBankerJoeStrategyProxyContract(signer);
+  return await getAvalancheBankerJoeStrategyContract(signer, proxy.address);
+}

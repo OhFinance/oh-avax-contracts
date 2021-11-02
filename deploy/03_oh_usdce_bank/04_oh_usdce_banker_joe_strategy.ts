@@ -1,30 +1,32 @@
 import {DeployFunction} from 'hardhat-deploy/types';
 import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {getInitializeAaveV2StrategyData} from 'lib/strategy';
+import {getInitializeBankerJoeStrategyData} from 'lib/strategy';
 
 // deploy the Oh! USDCe Bank Proxies
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployments, ethers, getNamedAccounts} = hre;
-  const {deployer, usdce, aaveUsdce} = await getNamedAccounts();
+  const {deployer, usdce, jUsdc, joe, wavax, joetroller} = await getNamedAccounts();
   const {deploy, log} = deployments;
 
-  log('USDC.e - Oh! USDCE AaveV2 Strategy');
+  log('USDC.e - Oh! USDCE Banker Joe Strategy');
 
   const registry = await ethers.getContract('OhRegistry');
-  const ohUsdcBank = await ethers.getContract('OhUsdceBank');
+  const ohUsdceBank = await ethers.getContract('OhUsdceBank');
   const proxyAdmin = await ethers.getContract('OhProxyAdmin');
-  const aaveV2Logic = await ethers.getContract('OhAvalancheAaveV2Strategy');
+  const bjLogic = await ethers.getContract('OhAvalancheBankerJoeStrategy');
 
-  // build the data's for the strategies
-  const data = await getInitializeAaveV2StrategyData(
+  const data = await getInitializeBankerJoeStrategyData(
     registry.address,
-    ohUsdcBank.address,
+    ohUsdceBank.address,
     usdce,
-    aaveUsdce
+    jUsdc,
+    joe,
+    wavax,
+    joetroller,
   );
-  const constructorArgs = [aaveV2Logic.address, proxyAdmin.address, data];
+  const constructorArgs = [bjLogic.address, proxyAdmin.address, data];
 
-  const result = await deploy('OhUsdceAaveV2Strategy', {
+  const result = await deploy('OhUsdceBankerJoeStrategy', {
     from: deployer,
     contract: 'OhUpgradeableProxy',
     args: constructorArgs,
@@ -34,6 +36,6 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 };
 
-deploy.tags = ['OhUsdceAaveV2Strategy'];
+deploy.tags = ['OhUsdceBankerJoeStrategy'];
 deploy.dependencies = ['OhRegistry', 'OhProxyAdmin', 'OhStrategy', 'OhUsdceBank'];
 export default deploy;

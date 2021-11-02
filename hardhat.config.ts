@@ -39,10 +39,16 @@ const config: HardhatUserConfig = {
       43114: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664', // USDC.e
     },
     benqi: {
-      43114: '0x8729438EB15e2C8B576fCc6AeCdA6A148776C0F5'
+      43114: '0x8729438EB15e2C8B576fCc6AeCdA6A148776C0F5',
     },
     joe: {
-      43114: '0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd'
+      43114: '0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd',
+    },
+    joetroller: {
+      43114: '0xdc13687554205E5b89Ac783db14bb5bba4A1eDaC',
+    },
+    jUsdc: {
+      43114: '0xEd6AaF91a2B084bd594DBd1245be3691F9f637aC', // Banker Joe USD coin
     },
     wavax: {
       43114: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',

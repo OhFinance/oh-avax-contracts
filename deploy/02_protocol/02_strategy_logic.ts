@@ -20,7 +20,14 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     deterministicDeployment: false,
     skipIfAlreadyDeployed: false,
-  })
+  });
+
+  await deploy('OhAvalancheBankerJoeStrategy', {
+    from: deployer,
+    log: true,
+    deterministicDeployment: false,
+    skipIfAlreadyDeployed: false,
+  });
 };
 
 deploy.tags = ['Protocol', 'OhStrategy'];
