@@ -4,7 +4,7 @@ import {deployments, ethers, getNamedAccounts} from 'hardhat';
 import { addStrategy, getErc20At, setBank, setLiquidator, setSwapRoutes } from '@ohfinance/oh-contracts/lib';
 import { advanceNBlocks, advanceNSeconds, getLiquidatorContract, getManagerContract, ONE_DAY, TEN_DAYS, TWO_DAYS } from '@ohfinance/oh-contracts/utils';
 import { swapAvaxForTokens } from 'utils/swap';
-import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBenqiStrategyContract } from 'utils/contract';
+import { getUsdceBankContract, getUsdceBenqiStrategyContract } from 'utils/contract';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
 
@@ -42,7 +42,7 @@ describe('OhAvalancheBenqiStrategy', function () {
     await addStrategy(deployer, manager.address, bank.address, benqiStrategy.address);
 
     // Buy USDC using the worker wallet
-    await swapAvaxForTokens(worker, usdce, parseEther('9000'));
+    await swapAvaxForTokens(worker, usdce, parseEther('1000'));
 
     usdceToken = await getErc20At(usdce, worker);
     // Check USDC balance and approve spending
@@ -52,7 +52,7 @@ describe('OhAvalancheBenqiStrategy', function () {
   });
 
   it('deployed and initialized Avalanche Benqi USDC.e Strategy proxy correctly', async function () {
-    const {deployer, benqi, benqiUsdce, benqiComptroller, usdce} =
+    const {deployer, benqi, benqiUsdce, benqiComptroller, usdce, wavax} =
       await getNamedAccounts();
     const bank = await getUsdceBankContract(deployer)
     const benqiStrategy = await getUsdceBenqiStrategyContract(deployer)
@@ -61,12 +61,14 @@ describe('OhAvalancheBenqiStrategy', function () {
     const underlying = await benqiStrategy.underlying();
     const derivative = await benqiStrategy.derivative();
     const reward = await benqiStrategy.reward();
+    const extraReward = await benqiStrategy.extraReward();
     const comptroller = await benqiStrategy.comptroller();
 
     expect(benqiStrategyBank).eq(bank.address);
     expect(underlying).eq(usdce);
     expect(derivative).eq(benqiUsdce);
     expect(reward).eq(benqi);
+    expect(extraReward).eq(wavax);
     expect(comptroller).eq(benqiComptroller);
   });
 

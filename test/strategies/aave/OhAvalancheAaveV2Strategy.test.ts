@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {formatUnits, parseEther} from '@ethersproject/units';
 import {deployments, ethers, getNamedAccounts} from 'hardhat';
 import { addStrategy, getErc20At, setBank, setLiquidator, setSwapRoutes } from '@ohfinance/oh-contracts/lib';
-import { advanceNBlocks, advanceNSeconds, getLiquidatorContract, getManagerContract, ONE_DAY, TEN_DAYS, TWO_DAYS } from '@ohfinance/oh-contracts/utils';
+import { advanceNBlocks, advanceNSeconds, getLiquidatorContract, getManagerContract, ONE_DAY } from '@ohfinance/oh-contracts/utils';
 import { swapAvaxForTokens } from 'utils/swap';
 import { getUsdceAaveV2StrategyContract, getUsdceBankContract } from 'utils/contract';
 import { BigNumber } from '@ethersproject/bignumber';
@@ -38,7 +38,7 @@ describe('OhAvalancheAaveV2Strategy', function () {
     await addStrategy(deployer, manager.address, bank.address, aaveV2Strategy.address);
 
     // Buy USDC using the worker wallet
-    await swapAvaxForTokens(worker, usdce, parseEther('9000'));
+    await swapAvaxForTokens(worker, usdce, parseEther('1000'));
 
     usdceToken = await getErc20At(usdce, worker);
     // Check USDC balance and approve spending

@@ -24,7 +24,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
   const constructorArgs = [aaveV2Logic.address, proxyAdmin.address, data];
 
-  const result = await deploy('OhUsdceAaveV2Strategy', {
+  await deploy('OhUsdceAaveV2Strategy', {
     from: deployer,
     contract: 'OhUpgradeableProxy',
     args: constructorArgs,

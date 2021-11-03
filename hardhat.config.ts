@@ -31,6 +31,9 @@ const config: HardhatUserConfig = {
     flat: true,
     clear: true,
   },
+  mocha: {
+    timeout: 200000
+  },
   namedAccounts: {
     deployer: 0,
     worker: 1,
@@ -47,7 +50,7 @@ const config: HardhatUserConfig = {
     joetroller: {
       43114: '0xdc13687554205E5b89Ac783db14bb5bba4A1eDaC',
     },
-    jUsdc: {
+    joeUsdce: {
       43114: '0xEd6AaF91a2B084bd594DBd1245be3691F9f637aC', // Banker Joe USD coin
     },
     wavax: {
@@ -89,7 +92,8 @@ const config: HardhatUserConfig = {
       chainId: 43114,
       live: false,
       forking: {
-        url: 'https://api.avax.network/ext/bc/C/rpc'
+        url: 'https://api.avax.network/ext/bc/C/rpc',
+        // blockNumber: 6480000
       }
     },
     fuji: {

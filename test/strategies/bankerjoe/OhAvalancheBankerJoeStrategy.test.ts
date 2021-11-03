@@ -33,7 +33,7 @@ describe('OhAvalancheBankerJoeStrategy', function () {
     await setSwapRoutes(deployer, liquidator.address, joeRouter, wavax, usdce, [wavax, usdce])
     await setLiquidator(deployer, manager.address, liquidator.address, wavax, usdce)
 
-    // rewards [qi => wavax => usdc.e] 
+    // rewards [joe => wavax => usdc.e] 
     await setSwapRoutes(deployer, liquidator.address, joeRouter, joe, usdce, [joe, wavax, usdce])
     await setLiquidator(deployer, manager.address, liquidator.address, joe, usdce)
 
@@ -42,7 +42,7 @@ describe('OhAvalancheBankerJoeStrategy', function () {
     await addStrategy(deployer, manager.address, bank.address, bankerJoeStrategy.address);
 
     // // Buy USDC using the worker wallet
-    await swapAvaxForTokens(worker, usdce, parseEther('9000'));
+    await swapAvaxForTokens(worker, usdce, parseEther('1000'));
 
     usdceToken = await getErc20At(usdce, worker);
     // // Check USDC balance and approve spending
@@ -52,7 +52,7 @@ describe('OhAvalancheBankerJoeStrategy', function () {
   });
 
   it('deployed and initialized Avalanche BankerJoe USDC.e Strategy proxy correctly', async function () {
-    const {deployer, joe, jUsdc, joetroller, usdce} =
+    const {deployer, joe, joeUsdce, joetroller, usdce, wavax} =
       await getNamedAccounts();
     const bank = await getUsdceBankContract(deployer)
     const bankerJoeStrategy = await getUsdceBankerJoeStrategyContract(deployer)
@@ -61,12 +61,14 @@ describe('OhAvalancheBankerJoeStrategy', function () {
     const underlying = await bankerJoeStrategy.underlying();
     const derivative = await bankerJoeStrategy.derivative();
     const reward = await bankerJoeStrategy.reward();
+    const extraReward = await bankerJoeStrategy.extraReward();
     const bankerJoeTroller = await bankerJoeStrategy.joetroller();
 
     expect(bankerJoeStrategyBank).eq(bank.address);
     expect(underlying).eq(usdce);
-    expect(derivative).eq(jUsdc);
+    expect(derivative).eq(joeUsdce);
     expect(reward).eq(joe);
+    expect(extraReward).eq(wavax);
     expect(bankerJoeTroller).eq(joetroller);
   });
 
