@@ -11,14 +11,14 @@ import {OhStrategy} from "@ohfinance/oh-contracts/contracts/strategies/OhStrateg
 import {OhAvalancheBenqiHelper} from "./OhAvalancheBenqiHelper.sol";
 import {OhAvalancheBenqiStrategyStorage} from "./OhAvalancheBenqiStrategyStorage.sol";
 
-/// @title Oh! Finance Compound Strategy
+/// @title Oh! Finance Benqi Strategy
 /// @notice Standard, unleveraged strategy. Invest underlying tokens into derivative cTokens
 /// @dev https://compound.finance/docs/ctokens
 contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrategy, OhAvalancheBenqiStrategyStorage {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    /// @notice Initialize the Compound Strategy Logic
+    /// @notice Initialize the Benqi Strategy Logic
     constructor() initializer {
         assert(registry() == address(0));
         assert(bank() == address(0));
@@ -33,7 +33,7 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
     /// @param derivative_ the qiToken address received from Benqi
     /// @param reward_ the address of the reward token QI
     /// @param extraReward_ the address of the reward token WAVAX
-    /// @param comptroller_ the Compound rewards contract
+    /// @param comptroller_ the Benqi rewards contract
     /// @dev The function should be called at time of deployment
     function initializeBenqiStrategy(
         address registry_,
@@ -51,7 +51,7 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
     }
 
     /// @notice Get the balance of underlying invested by the Strategy
-    /// @dev Get the exchange rate (which is scaled up by 1e18) and multiply by amount of cTokens
+    /// @dev Get the exchange rate (which is scaled up by 1e18) and multiply by amount of qiTokens
     /// @return The amount of underlying the strategy has invested
     function investedBalance() public view override returns (uint256) {
         uint256 exchangeRate = getExchangeRate(derivative());
@@ -83,7 +83,7 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
         }
     }
 
-    // deposit underlying tokens into Compound, minting cTokens
+    // deposit underlying tokens into Benqi, minting qiTokens
     function _deposit() internal {
         uint256 amount = underlyingBalance();
         if (amount > 0) {
@@ -91,7 +91,7 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
         }
     }
 
-    // withdraw all underlying by redeem all cTokens
+    // withdraw all underlying by redeem all qiTokens
     function withdrawAll() external override onlyBank {
         uint256 invested = investedBalance();
         _withdraw(msg.sender, invested);
@@ -103,7 +103,7 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
         return withdrawn;
     }
 
-    // withdraw underlying tokens from the protocol after redeeming them from compound
+    // withdraw underlying tokens from the protocol after redeeming them from Benqi
     function _withdraw(address recipient, uint256 amount) internal returns (uint256) {
         if (amount == 0) {
             return 0;
@@ -114,7 +114,7 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
         uint256 supplyShare = amount.mul(1e18).div(invested);
         uint256 redeemAmount = supplyShare.mul(invested).div(1e18);
 
-        // safely redeem from Compound
+        // safely redeem from Benqi
         if (redeemAmount > invested) {
             redeemUnderlying(derivative(), invested);
         } else {

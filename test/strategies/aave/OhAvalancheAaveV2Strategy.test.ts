@@ -37,11 +37,11 @@ describe('OhAvalancheAaveV2Strategy', function () {
     await setBank(deployer, manager.address, bank.address)
     await addStrategy(deployer, manager.address, bank.address, aaveV2Strategy.address);
 
-    // // Buy USDC using the worker wallet
+    // Buy USDC using the worker wallet
     await swapAvaxForTokens(worker, usdce, parseEther('9000'));
 
     usdceToken = await getErc20At(usdce, worker);
-    // // Check USDC balance and approve spending
+    // Check USDC balance and approve spending
     startingBalance = await usdceToken.balanceOf(worker);
     console.log('Starting Balance:', formatUnits(startingBalance.toString(), 6));
     await usdceToken.approve(bank.address, startingBalance);
@@ -73,14 +73,14 @@ describe('OhAvalancheAaveV2Strategy', function () {
     const bank = await getUsdceBankContract(worker)
     const manager = await getManagerContract(worker)
 
-    // // Deposit the USDC in the Bank
+    // Deposit the USDC in the Bank
     await bank.deposit(startingBalance);
     const bankBalance = await bank.underlyingBalance();
 
-    // // Check that tha Bank now has proper amount of USDC deposited
+    // Check that tha Bank now has proper amount of USDC deposited
     expect(bankBalance).to.be.eq(startingBalance);
 
-    // // Invest the initial USDC into the strategy
+    // Invest the initial USDC into the strategy
     await manager.finance(bank.address);
 
     const strategyBalance = await bank.strategyBalance(0);
@@ -122,10 +122,10 @@ describe('OhAvalancheAaveV2Strategy', function () {
     const bank = await getUsdceBankContract(worker)
     const aaveV2Strategy = await getUsdceAaveV2StrategyContract(worker)
 
-    // // Withdraw all from the strategy to the bank
+    // Withdraw all from the strategy to the bank
     await manager.exit(bank.address, aaveV2Strategy.address);
 
-    // // Check that underlying balance for the user is now greater than when the test started
+    // Check that underlying balance for the user is now greater than when the test started
     const virtualBalance = await bank.virtualBalance();
     const virtualPrice = await bank.virtualPrice();
 

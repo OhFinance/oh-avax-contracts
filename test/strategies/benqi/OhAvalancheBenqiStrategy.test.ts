@@ -25,9 +25,9 @@ describe('OhAvalancheBenqiStrategy', function () {
 
     // Setup Liquidation routes
 
-     // buyback [usdc.e => wavax => oh]
-     await setSwapRoutes(deployer, liquidator.address, joeRouter, usdce, token, [usdce, wavax, token])
-     await setLiquidator(deployer, manager.address, liquidator.address, usdce, token)
+    // buyback [usdc.e => wavax => oh]
+    await setSwapRoutes(deployer, liquidator.address, joeRouter, usdce, token, [usdce, wavax, token])
+    await setLiquidator(deployer, manager.address, liquidator.address, usdce, token)
 
     // rewards [wavax => usdc.e] 
     await setSwapRoutes(deployer, liquidator.address, joeRouter, wavax, usdce, [wavax, usdce])
@@ -41,11 +41,11 @@ describe('OhAvalancheBenqiStrategy', function () {
     await setBank(deployer, manager.address, bank.address)
     await addStrategy(deployer, manager.address, bank.address, benqiStrategy.address);
 
-    // // Buy USDC using the worker wallet
+    // Buy USDC using the worker wallet
     await swapAvaxForTokens(worker, usdce, parseEther('9000'));
 
     usdceToken = await getErc20At(usdce, worker);
-    // // Check USDC balance and approve spending
+    // Check USDC balance and approve spending
     startingBalance = await usdceToken.balanceOf(worker);
     console.log('Starting Balance:', formatUnits(startingBalance.toString(), 6));
     await usdceToken.approve(bank.address, startingBalance);
@@ -75,14 +75,14 @@ describe('OhAvalancheBenqiStrategy', function () {
     const bank = await getUsdceBankContract(worker)
     const manager = await getManagerContract(worker)
 
-    // // Deposit the USDC in the Bank
+    // Deposit the USDC in the Bank
     await bank.deposit(startingBalance);
     const bankBalance = await bank.underlyingBalance();
 
-    // // Check that tha Bank now has proper amount of USDC deposited
+    // Check that tha Bank now has proper amount of USDC deposited
     expect(bankBalance).to.be.eq(startingBalance);
 
-    // // Invest the initial USDC into the strategy
+    // Invest the initial USDC into the strategy
     await manager.finance(bank.address);
 
     const strategyBalance = await bank.strategyBalance(0);
@@ -124,10 +124,10 @@ describe('OhAvalancheBenqiStrategy', function () {
     const bank = await getUsdceBankContract(worker)
     const benqiStrategy = await getUsdceBenqiStrategyContract(worker)
 
-    // // Withdraw all from the strategy to the bank
+    // Withdraw all from the strategy to the bank
     await manager.exit(bank.address, benqiStrategy.address);
 
-    // // Check that underlying balance for the user is now greater than when the test started
+    // Check that underlying balance for the user is now greater than when the test started
     const virtualBalance = await bank.virtualBalance();
     const virtualPrice = await bank.virtualPrice();
 

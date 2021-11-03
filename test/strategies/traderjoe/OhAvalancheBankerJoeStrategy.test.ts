@@ -75,14 +75,14 @@ describe('OhAvalancheBankerJoeStrategy', function () {
     const bank = await getUsdceBankContract(worker)
     const manager = await getManagerContract(worker)
 
-    // // Deposit the USDCe in the Bank
+    // Deposit the USDCe in the Bank
     await bank.deposit(startingBalance);
     const bankBalance = await bank.underlyingBalance();
 
-    // // Check that tha Bank now has proper amount of USDC deposited
+    // Check that the Bank now has proper amount of USDC deposited
     expect(bankBalance).to.be.eq(startingBalance);
 
-    // // Invest the initial USDCe into the strategy
+    // Invest the initial USDCe into the strategy
     await manager.finance(bank.address);
 
     const strategyBalance = await bank.strategyBalance(0);
@@ -124,10 +124,10 @@ describe('OhAvalancheBankerJoeStrategy', function () {
     const bank = await getUsdceBankContract(worker)
     const bankerJoeStrategy = await getUsdceBankerJoeStrategyContract(worker)
 
-    // // Withdraw all from the strategy to the bank
+    // Withdraw all from the strategy to the bank
     await manager.exit(bank.address, bankerJoeStrategy.address);
 
-    // // Check that underlying balance for the user is now greater than when the test started
+    // Check that underlying balance for the user is now greater than when the test started
     const virtualBalance = await bank.virtualBalance();
     const virtualPrice = await bank.virtualPrice();
 

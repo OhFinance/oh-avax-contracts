@@ -15,97 +15,97 @@ import {IBenqiComptroller} from "./interfaces/IBenqiComptroller.sol";
 abstract contract OhAvalancheBenqiHelper {
     using SafeERC20 for IERC20;
 
-    /// @notice Get the exchange rate of cTokens => underlying
+    /// @notice Get the exchange rate of QiTokens => underlying
     /// @dev https://compound.finance/docs/ctokens#exchange-rate
-    /// @param cToken The cToken address rate to get
+    /// @param qiToken The qiToken address rate to get
     /// @return The exchange rate scaled by 1e18
-    function getExchangeRate(address cToken) internal view returns (uint256) {
-        return IQiToken(cToken).exchangeRateStored();
+    function getExchangeRate(address qiToken) internal view returns (uint256) {
+        return IQiToken(qiToken).exchangeRateStored();
     }
 
     /// @notice Enter the market (approve), required before calling borrow
-    /// @param comptroller The Compound Comptroller (rewards contract)
-    /// @param cToken The cToken market to enter
-    function enter(address comptroller, address cToken) internal {
-        address[] memory cTokens = new address[](1);
-        cTokens[0] = cToken;
-        IBenqiComptroller(comptroller).enterMarkets(cTokens);
+    /// @param comptroller The Benqi Comptroller (rewards contract)
+    /// @param qiToken The qiToken market to enter
+    function enter(address comptroller, address qiToken) internal {
+        address[] memory qiTokens = new address[](1);
+        qiTokens[0] = qiToken;
+        IBenqiComptroller(comptroller).enterMarkets(qiTokens);
     }
 
-    /// @notice Mint cTokens by providing/lending underlying as collateral
+    /// @notice Mint qiTokens by providing/lending underlying as collateral
     /// @param underlying The underlying to lend to Compound
-    /// @param cToken The Compound cToken
+    /// @param qiToken The Compound qiToken
     /// @param amount The amount of underlying to lend
     function mint(
         address underlying,
-        address cToken,
+        address qiToken,
         uint256 amount
     ) internal {
         if (amount == 0) {
             return;
         }
         
-        IERC20(underlying).safeIncreaseAllowance(cToken, amount);
-        uint256 result = IQiToken(cToken).mint(amount);
-        require(result == 0, "Compound: Borrow failed");
+        IERC20(underlying).safeIncreaseAllowance(qiToken, amount);
+        uint256 result = IQiToken(qiToken).mint(amount);
+        require(result == 0, "Benqi: Borrow failed");
     }
 
-    /// @notice Borrow underlying tokens from a given cToken against collateral
-    /// @param cToken The cToken corresponding the underlying we want to borrow
+    /// @notice Borrow underlying tokens from a given qiToken against collateral
+    /// @param qiToken The qiToken corresponding the underlying we want to borrow
     /// @param amount The amount of underlying to borrow
-    function borrow(address cToken, uint256 amount) internal {
+    function borrow(address qiToken, uint256 amount) internal {
         if (amount == 0) {
             return;
         }
 
-        uint256 result = IQiToken(cToken).borrow(amount);
-        require(result == 0, "Compound: Borrow failed");
+        uint256 result = IQiToken(qiToken).borrow(amount);
+        require(result == 0, "Benqi: Borrow failed");
     }
 
     /// @notice Repay loan with a given amount of underlying
     /// @param underlying The underlying to repay
-    /// @param cToken The cToken for the underlying
+    /// @param qiToken The qiToken for the underlying
     /// @param amount The amount of underlying to repay
     function repay(
         address underlying,
-        address cToken,
+        address qiToken,
         uint256 amount
     ) internal {
         if (amount == 0) {
             return;
         }
 
-        IERC20(underlying).safeIncreaseAllowance(cToken, amount);
-        uint256 result = IQiToken(cToken).repayBorrow(amount);
-        require(result == 0, "Compound: Repay failed");
+        IERC20(underlying).safeIncreaseAllowance(qiToken, amount);
+        uint256 result = IQiToken(qiToken).repayBorrow(amount);
+        require(result == 0, "Benqi: Repay failed");
     }
 
-    /// @notice Redeem cTokens for underlying
-    /// @param cToken The cToken to redeem
-    /// @param amount The amount of cTokens to redeem
-    function redeem(address cToken, uint256 amount) internal {
+    /// @notice Redeem qiTokens for underlying
+    /// @param qiToken The qiToken to redeem
+    /// @param amount The amount of qiTokens to redeem
+    function redeem(address qiToken, uint256 amount) internal {
         if (amount == 0) {
             return;
         }
 
-        uint256 result = IQiToken(cToken).redeem(amount);
-        require(result == 0, "Compound: Redeem cToken");
+        uint256 result = IQiToken(qiToken).redeem(amount);
+        require(result == 0, "Benqi: Redeem qiToken");
     }
 
-    /// @notice Redeem cTokens for underlying
-    /// @param cToken The cToken to redeem
+    /// @notice Redeem qiTokens for underlying
+    /// @param qiToken The qiToken to redeem
     /// @param amount The amount of underlying tokens to receive
-    function redeemUnderlying(address cToken, uint256 amount) internal {
+    function redeemUnderlying(address qiToken, uint256 amount) internal {
         if (amount == 0) {
             return;
         }
 
-        uint256 result = IQiToken(cToken).redeemUnderlying(amount);
-        require(result == 0, "Compound: Redeem underlying");
+        uint256 result = IQiToken(qiToken).redeemUnderlying(amount);
+        require(result == 0, "Benqi: Redeem underlying");
     }
 
-    /// @notice Claim COMP rewards from Comptroller for this address
-    /// @param comptroller The Compound Comptroller, Reward Contract
+    /// @notice Claim QI rewards from Comptroller for this address
+    /// @param comptroller The Benqi Comptroller, Reward Contract
     function claim(address comptroller, uint rewardType) internal {
         IBenqiComptroller(comptroller).claimReward(uint8(rewardType), address(this));
     }
