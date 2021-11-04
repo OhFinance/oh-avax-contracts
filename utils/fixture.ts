@@ -4,21 +4,21 @@ import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBankerJoe
 import { swapAvaxForTokens } from './swap';
 import { updateBank, updateLiquidator, updateManager } from './tasks';
 
-export const setupRegistry = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
+export const setupRegistry = deployments.createFixture(async ({deployments}) => {
   await deployments.fixture(['OhRegistry']);
 });
 
-export const setupManager = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
+export const setupManager = deployments.createFixture(async ({deployments}) => {
   await deployments.fixture(['OhManager']);
   await updateManager();
 });
 
-export const setupLiquidator = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
+export const setupLiquidator = deployments.createFixture(async ({deployments}) => {
   await deployments.fixture(['OhLiquidator']);
   await updateManager();
 });
 
-export const setupProxyAdmin = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
+export const setupProxyAdmin = deployments.createFixture(async ({deployments}) => {
   await deployments.fixture(['OhProxyAdmin']);
   await updateManager();
 });

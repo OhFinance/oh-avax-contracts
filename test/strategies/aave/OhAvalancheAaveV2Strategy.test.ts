@@ -3,7 +3,7 @@ import {formatUnits} from '@ethersproject/units';
 import { getNamedAccounts} from 'hardhat';
 import { approve, deposit, finance, withdraw, getERC20Contract, getManagerContract, exit } from '@ohfinance/oh-contracts/lib';
 import { advanceNBlocks, advanceNSeconds, ONE_DAY } from '@ohfinance/oh-contracts/utils';
-import { getUsdceAaveV2StrategyContract, getUsdceBankContract } from 'lib/contract';
+import { getAvalancheManagerContract, getUsdceAaveV2StrategyContract, getUsdceBankContract } from 'lib/contract';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
 import { setupBankTest } from 'utils/fixture';
@@ -51,7 +51,7 @@ describe('OhAvalancheAaveV2Strategy', function () {
   it('finances and deposits into AaveV2', async function () {
     const { worker } = await getNamedAccounts()
     const bank = await getUsdceBankContract(worker)
-    const manager = await getManagerContract(worker)
+    const manager = await getAvalancheManagerContract(worker)
 
     // Approve + deposit the USDC in the Bank
     await approve(worker, usdceToken.address, bank.address, startingBalance);
@@ -70,8 +70,7 @@ describe('OhAvalancheAaveV2Strategy', function () {
 
   it('liquidates rewards and compounds deposit', async () => {
     const {worker} = await getNamedAccounts();
-    
-    const manager = await getManagerContract(worker)
+    const manager = await getAvalancheManagerContract(worker)
     const bank = await getUsdceBankContract(worker)
     const aaveV2Strategy = await getUsdceAaveV2StrategyContract(worker)
 
@@ -97,7 +96,7 @@ describe('OhAvalancheAaveV2Strategy', function () {
 
   it('exits all and is profitable', async () => {
     const {deployer, worker} = await getNamedAccounts();
-    const manager = await getManagerContract(deployer)
+    const manager = await getAvalancheManagerContract(deployer)
     const bank = await getUsdceBankContract(worker)
     const aaveV2Strategy = await getUsdceAaveV2StrategyContract(worker)
 

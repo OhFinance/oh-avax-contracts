@@ -1,6 +1,13 @@
 import { getBankContract, getUpgradeableProxy } from "@ohfinance/oh-contracts/lib";
 import { ethers } from "hardhat";
-import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy } from "types";
+import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy, OhAvalancheManager } from "types";
+
+export const getAvalancheManagerContract = async (signer: string, at?: string) => {
+  if (at) {
+    return (await ethers.getContractAt('OhAvalancheManager', at, signer)) as OhAvalancheManager;
+  }
+  return (await ethers.getContract('OhAvalancheManager', signer)) as OhAvalancheManager;
+}
 
 export const getAvalancheAaveV2StrategyContract = async (signer: string, at?: string) => {
   if (at) {

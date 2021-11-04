@@ -1,17 +1,18 @@
-import { addBank, addStrategy, getLiquidatorContract, getManagerContract, getRegistryContract, setLiquidator, setManager, setSwapRoutes } from "@ohfinance/oh-contracts/lib";
+import { addBank, addStrategy, getLiquidatorContract, getRegistryContract, setLiquidator, setManager, setSwapRoutes } from "@ohfinance/oh-contracts/lib";
 import { getNamedAccounts } from "hardhat";
+import { getAvalancheManagerContract } from "lib/contract";
 
 export const updateManager = async () => {
   const {deployer} = await getNamedAccounts()
   const registry = await getRegistryContract(deployer)
-  const manager = await getManagerContract(deployer)
+  const manager = await getAvalancheManagerContract(deployer)
 
   await setManager(deployer, registry.address, manager.address);
 }
 
 export const updateLiquidator = async () => {
   const {deployer, joeRouter, token, usdce, wavax, benqi, joe} = await getNamedAccounts()
-  const manager = await getManagerContract(deployer)
+  const manager = await getAvalancheManagerContract(deployer)
   const liquidator = await getLiquidatorContract(deployer)
 
   // Add swap routes for buybacks and rewards to Liquidator, then add to Manager
@@ -35,7 +36,7 @@ export const updateLiquidator = async () => {
 
 export const updateBank = async (bank: string, strategies: string[]) => {
   const {deployer} = await getNamedAccounts()
-  const manager = await getManagerContract(deployer)
+  const manager = await getAvalancheManagerContract(deployer)
 
   // Add Bank to Manager
   await addBank(deployer, manager.address, bank);

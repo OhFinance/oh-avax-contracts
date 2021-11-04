@@ -1,7 +1,9 @@
 import {expect} from 'chai';
 import {ethers, getNamedAccounts} from 'hardhat';
 import { OhLiquidatorV2 } from '@ohfinance/oh-contracts/types';
-import { setupLiquidator } from 'utils/fixture';
+import { setupBankTest, setupLiquidator } from 'utils/fixture';
+import { getLiquidatorContract, getManagerContract } from '@ohfinance/oh-contracts/lib';
+import { getAvalancheManagerContract } from 'lib/contract';
 
 describe('OhLiquidator', function () {
 
@@ -23,30 +25,38 @@ describe('OhLiquidator', function () {
     });
   })
   
+  describe('OH-USDC.e deployment', function () {
+    before(async function () {
+      await setupBankTest();
+    })
 
-  // it('added swap routes correctly', async () => {
-  //   const {deployer} = fixture;
-  //   const {liquidator} = deployer;
-  //   const {aave, comp, crv, weth, usdc, sushiswapV2} = await getNamedAccounts();
+    it('added swap routes correctly', async function () {
+      const {deployer, joeRouter, wavax, joe, benqi, token, usdce} = await getNamedAccounts();
+      const liquidator = await getLiquidatorContract(deployer);
 
-  //   const aaveInfo = await liquidator.getSwapInfo(aave, usdc);
-  //   const compInfo = await liquidator.getSwapInfo(comp, usdc);
-  //   const crvInfo = await liquidator.getSwapInfo(crv, usdc);
+      const wavaxInfo = await liquidator.getSwapInfo(wavax, usdce);
+      const joeInfo = await liquidator.getSwapInfo(joe, usdce);
+      const benqiInfo = await liquidator.getSwapInfo(benqi, usdce);
+      const buybackInfo = await liquidator.getSwapInfo(usdce, token);
+  
+      expect(joeRouter).eq(wavaxInfo.router).eq(joeInfo.router).eq(benqiInfo.router).eq(buybackInfo.router);
+      expect(3).eq(joeInfo.path.length).eq(benqiInfo.path.length).eq(buybackInfo.path.length);
+      expect(2).eq(wavaxInfo.path.length);
+      expect(wavax).eq(joeInfo.path[1]).eq(benqiInfo.path[1]).eq(buybackInfo.path[1]);
+    });
+  
+    it('was added to manager', async () => {
+      const {deployer, wavax, joe, token, benqi, usdce} = await getNamedAccounts();
+      const manager = await getAvalancheManagerContract(deployer)
+      const liquidator = await getLiquidatorContract(deployer)
 
-  //   expect(sushiswapV2).eq(aaveInfo.router).eq(compInfo.router).eq(crvInfo.router);
-  //   expect(3).eq(aaveInfo.path.length).eq(compInfo.path.length).eq(crvInfo.path.length);
-  //   expect(weth).eq(aaveInfo.path[1]).eq(compInfo.path[1]).eq(crvInfo.path[1]);
-  // });
-
-  // it('was added to manager', async () => {
-  //   const {deployer} = fixture;
-  //   const {liquidator, manager} = deployer;
-  //   const {aave, comp, crv, usdc} = await getNamedAccounts();
-
-  //   const address1 = await manager.liquidators(aave, usdc);
-  //   const address2 = await manager.liquidators(comp, usdc);
-  //   const address3 = await manager.liquidators(crv, usdc);
-
-  //   expect(liquidator.address).eq(address1).eq(address2).eq(address3);
-  // });
+      const a1 = await manager.liquidators(wavax, usdce);
+      const a2 = await manager.liquidators(joe, usdce);
+      const a3 = await manager.liquidators(benqi, usdce);
+      const a4 = await manager.liquidators(usdce, token)
+  
+      expect(liquidator.address).eq(a1).eq(a2).eq(a3).eq(a4);
+    });
+  })
+  
 })

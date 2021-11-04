@@ -3,7 +3,7 @@ import {formatUnits} from '@ethersproject/units';
 import { getNamedAccounts} from 'hardhat';
 import { approve, deposit, finance, withdraw, getERC20Contract, getManagerContract, exit } from '@ohfinance/oh-contracts/lib';
 import { advanceNBlocks, advanceNSeconds, ONE_DAY } from '@ohfinance/oh-contracts/utils';
-import { getUsdceBankContract, getUsdceBankerJoeStrategyContract } from 'lib/contract';
+import { getAvalancheManagerContract, getUsdceBankContract, getUsdceBankerJoeStrategyContract } from 'lib/contract';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
 import { updateBank } from 'utils/tasks';
@@ -51,7 +51,7 @@ describe('OhAvalancheBankerJoeStrategy', function () {
   it('finances and deposits into BankerJoe', async function () {
     const { worker } = await getNamedAccounts()
     const bank = await getUsdceBankContract(worker)
-    const manager = await getManagerContract(worker)
+    const manager = await getAvalancheManagerContract(worker)
 
     // Approve + deposit the USDCe in the Bank
     await approve(worker, usdceToken.address, bank.address, startingBalance);
@@ -72,8 +72,7 @@ describe('OhAvalancheBankerJoeStrategy', function () {
 
   it('liquidates rewards and compounds deposit', async function () {
     const {worker} = await getNamedAccounts();
-    
-    const manager = await getManagerContract(worker)
+    const manager = await getAvalancheManagerContract(worker)
     const bank = await getUsdceBankContract(worker)
     const bankerJoeStrategy = await getUsdceBankerJoeStrategyContract(worker)
 
@@ -99,7 +98,7 @@ describe('OhAvalancheBankerJoeStrategy', function () {
 
   it('exits all and is profitable', async function () {
     const {deployer, worker} = await getNamedAccounts();
-    const manager = await getManagerContract(deployer)
+    const manager = await getAvalancheManagerContract(deployer)
     const bank = await getUsdceBankContract(worker)
     const bankerJoeStrategy = await getUsdceBankerJoeStrategyContract(worker)
 

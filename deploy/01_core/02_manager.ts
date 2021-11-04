@@ -12,7 +12,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const registry = await getRegistryContract(deployer)
 
-  await deploy('OhManager', {
+  await deploy('OhAvalancheManager', {
     from: deployer,
     args: [registry.address, token],
     log: true,

@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {formatUnits} from '@ethersproject/units';
 import {getNamedAccounts} from 'hardhat';
 import { approve, deposit, finance, withdraw, getERC20Contract, getManagerContract, exit } from '@ohfinance/oh-contracts/lib';
-import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBankerJoeStrategyContract, getUsdceBenqiStrategyContract } from 'lib/contract';
+import { getAvalancheManagerContract, getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBankerJoeStrategyContract, getUsdceBenqiStrategyContract } from 'lib/contract';
 import { advanceNBlocks, advanceNSeconds, ONE_DAY } from '@ohfinance/oh-contracts/utils';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
@@ -76,7 +76,7 @@ describe('Oh! USDC.e', function () {
   it('allows users to deposit and allows investing into Oh! USDC.e Bank Stratgies', async function () {
     const {worker} = await getNamedAccounts()
     const bank = await getUsdceBankContract(worker)
-    const manager = await getManagerContract(worker);
+    const manager = await getAvalancheManagerContract(worker);
 
     const balance = await usdceToken.balanceOf(worker);
     console.log('Starting Balance is:', formatUnits(balance.toString(), 6));
