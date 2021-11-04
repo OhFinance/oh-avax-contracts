@@ -17,6 +17,7 @@
     "deploy",
     "lib",
     "test",
+    "scripts",
     "utils"
   ],
   "exclude": ["node_modules"]

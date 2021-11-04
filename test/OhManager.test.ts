@@ -105,6 +105,7 @@ describe('OhManager', function () {
 
       const before = await ohToken.balanceOf(worker);
       await burn(deployer, manager.address);
+      
       const after = await ohToken.balanceOf(worker);
       expect(after).to.be.gt(before);
     })
