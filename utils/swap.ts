@@ -14,7 +14,8 @@ export const swapAvaxForTokens = async (signer: string, token: string, value: Bi
   const router = await getTraderJoeRouter(signer);
   const path = [wavax, token];
 
-  await router.swapExactAVAXForTokens(0, path, signer, Date.now() + 1000, {
+  const tx = await router.swapExactAVAXForTokens(0, path, signer, Date.now() + 1000, {
     value,
   });
+  await tx.wait()
 };

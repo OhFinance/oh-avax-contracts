@@ -1,50 +1,30 @@
 import {expect} from 'chai';
-import {formatUnits, parseEther} from '@ethersproject/units';
-import {deployments, ethers, getNamedAccounts} from 'hardhat';
-import { addStrategy, getErc20At, setBank, setLiquidator, setSwapRoutes } from '@ohfinance/oh-contracts/lib';
-import { advanceNBlocks, advanceNSeconds, getLiquidatorContract, getManagerContract, ONE_DAY } from '@ohfinance/oh-contracts/utils';
-import { swapAvaxForTokens } from 'utils/swap';
-import { getUsdceAaveV2StrategyContract, getUsdceBankContract } from 'utils/contract';
+import {formatUnits} from '@ethersproject/units';
+import { getNamedAccounts} from 'hardhat';
+import { approve, deposit, finance, withdraw, getERC20Contract, getManagerContract, exit } from '@ohfinance/oh-contracts/lib';
+import { advanceNBlocks, advanceNSeconds, ONE_DAY } from '@ohfinance/oh-contracts/utils';
+import { getUsdceAaveV2StrategyContract, getUsdceBankContract } from 'lib/contract';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
+import { setupBankTest } from 'utils/fixture';
+import { updateBank } from 'utils/tasks';
 
 describe('OhAvalancheAaveV2Strategy', function () {
   let startingBalance: BigNumber
   let usdceToken: IERC20
 
   before(async function () {
-    await deployments.fixture(["OhUsdceBank", "OhUsdceAaveV2Strategy"])
+    await setupBankTest()
 
-    const { deployer, worker, usdce, joeRouter, token, wavax } = await getNamedAccounts();
-    const liquidator = await getLiquidatorContract(deployer)
-    const manager = await getManagerContract(deployer)
+    const { deployer, worker, usdce } = await getNamedAccounts();
+    const bank = await getUsdceBankContract(deployer)
+    const aaveV2Strategy = await getUsdceAaveV2StrategyContract(deployer)
 
+    await updateBank(bank.address, [aaveV2Strategy.address])
 
-    const bank = await ethers.getContract('OhUsdceBank', deployer)
-    const aaveV2Strategy = await ethers.getContract('OhUsdceAaveV2Strategy', deployer)
-
-    // Setup Liquidation routes
-
-    // buyback [usdc.e => wavax => oh]
-    await setSwapRoutes(deployer, liquidator.address, joeRouter, usdce, token, [usdce, wavax, token])
-    await setLiquidator(deployer, manager.address, liquidator.address, usdce, token)
-
-    // rewards [wavax => usdc.e] 
-    await setSwapRoutes(deployer, liquidator.address, joeRouter, wavax, usdce, [wavax, usdce])
-    await setLiquidator(deployer, manager.address, liquidator.address, wavax, usdce)
-
-    // Setup Bank 
-    await setBank(deployer, manager.address, bank.address)
-    await addStrategy(deployer, manager.address, bank.address, aaveV2Strategy.address);
-
-    // Buy USDC using the worker wallet
-    await swapAvaxForTokens(worker, usdce, parseEther('1000'));
-
-    usdceToken = await getErc20At(usdce, worker);
-    // Check USDC balance and approve spending
+    usdceToken = await getERC20Contract(worker, usdce);
     startingBalance = await usdceToken.balanceOf(worker);
     console.log('Starting Balance:', formatUnits(startingBalance.toString(), 6));
-    await usdceToken.approve(bank.address, startingBalance);
   });
 
   it('deployed and initialized Avalance AaveV2 USDC.e Strategy proxy correctly', async function () {
@@ -73,19 +53,18 @@ describe('OhAvalancheAaveV2Strategy', function () {
     const bank = await getUsdceBankContract(worker)
     const manager = await getManagerContract(worker)
 
-    // Deposit the USDC in the Bank
-    await bank.deposit(startingBalance);
-    const bankBalance = await bank.underlyingBalance();
+    // Approve + deposit the USDC in the Bank
+    await approve(worker, usdceToken.address, bank.address, startingBalance);
+    await deposit(worker, bank.address, startingBalance);
 
     // Check that tha Bank now has proper amount of USDC deposited
+    const bankBalance = await bank.underlyingBalance();
     expect(bankBalance).to.be.eq(startingBalance);
 
-    // Invest the initial USDC into the strategy
-    await manager.finance(bank.address);
+    await finance(worker, manager.address, bank.address);
 
     const strategyBalance = await bank.strategyBalance(0);
     console.log('Strategy Balance: ' + formatUnits(strategyBalance.toString(), 6));
-
     expect(strategyBalance).to.be.gt(0);
   });
 
@@ -103,7 +82,7 @@ describe('OhAvalancheAaveV2Strategy', function () {
     // finance to claim WAVAX and trigger liquidation
     const balanceBefore = await aaveV2Strategy.investedBalance();
 
-    await manager.finance(bank.address);
+    await finance(worker, manager.address, bank.address);
 
     const balanceAfter = await aaveV2Strategy.investedBalance();
     console.log('Liquidated WAVAX for', formatUnits(balanceAfter.sub(balanceBefore), 6), 'USDC.e');
@@ -123,7 +102,7 @@ describe('OhAvalancheAaveV2Strategy', function () {
     const aaveV2Strategy = await getUsdceAaveV2StrategyContract(worker)
 
     // Withdraw all from the strategy to the bank
-    await manager.exit(bank.address, aaveV2Strategy.address);
+    await exit(deployer, manager.address, bank.address, aaveV2Strategy.address);
 
     // Check that underlying balance for the user is now greater than when the test started
     const virtualBalance = await bank.virtualBalance();
@@ -133,7 +112,7 @@ describe('OhAvalancheAaveV2Strategy', function () {
     console.log('Virtual Price:', formatUnits(virtualPrice.toString(), 6));
 
     const shares = await bank.balanceOf(worker);
-    await bank.withdraw(shares.toString());
+    await withdraw(worker, bank.address, shares);
 
     const endingBalance = await usdceToken.balanceOf(worker);
     expect(startingBalance).to.be.lt(endingBalance);

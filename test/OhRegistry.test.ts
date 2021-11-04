@@ -1,11 +1,12 @@
-import { getRegistryContract } from '@ohfinance/oh-contracts/utils';
+import { getRegistryContract } from '@ohfinance/oh-contracts/lib';
 import {expect} from 'chai';
-import {deployments, ethers, getNamedAccounts} from 'hardhat';
+import {getNamedAccounts} from 'hardhat';
+import { setupRegistry } from 'utils/fixture';
 
 describe('OhRegistry', () => {
 
     before(async () => {
-      await deployments.fixture(['OhRegistry']);
+      await setupRegistry();
     })
 
     it('was deployed correctly', async () => {

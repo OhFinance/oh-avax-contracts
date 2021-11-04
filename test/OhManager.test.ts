@@ -1,18 +1,19 @@
 import {expect} from 'chai'
-import { deployments, ethers, getNamedAccounts } from "hardhat";
-import { OhManager } from '@ohfinance/oh-contracts/types';
+import { setupManager } from 'utils/fixture';
+import { getManagerContract, getRegistryContract } from '@ohfinance/oh-contracts/lib';
+import { getNamedAccounts } from 'hardhat';
 
-describe('OhManager', () => {
-  describe('deployment', () => {
+describe('OhManager', function () {
+  describe('deployment', function () {
 
-    before(async () => {
-      await deployments.fixture(['OhManager'])
+    before(async function () {
+      await setupManager();
     });
 
-    it('is deployed correctly', async () => {
+    it('is deployed correctly', async function () {
       const {deployer, token} = await getNamedAccounts();
-      const registry = await ethers.getContract('OhRegistry', deployer)
-      const manager = await ethers.getContract('OhManager', deployer) as OhManager
+      const registry = await getRegistryContract(deployer)
+      const manager = await getManagerContract(deployer)
 
       const registryAddress = await manager.registry();
       const tokenAddress = await manager.token();

@@ -1,14 +1,15 @@
 import {DeployFunction} from 'hardhat-deploy/types';
 import {HardhatRuntimeEnvironment} from 'hardhat/types';
+import { getRegistryContract } from '@ohfinance/oh-contracts/lib';
 
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, ethers, getNamedAccounts} = hre;
+  const {deployments, getNamedAccounts} = hre;
   const {deployer} = await getNamedAccounts();
   const {deploy, log} = deployments;
 
   log('Core - Proxy Admin');
 
-  const registry = await ethers.getContract('OhRegistry');
+  const registry = await getRegistryContract(deployer)
 
   await deploy('OhProxyAdmin', {
     from: deployer,
@@ -20,5 +21,5 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 deploy.tags = ['Core', 'OhProxyAdmin'];
-deploy.dependencies = ['OhRegistry'];
+deploy.dependencies = ['OhLiquidator'];
 export default deploy;

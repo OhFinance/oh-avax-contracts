@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "scripts": {
     "compile": "hardhat compile",
-    "test": "hardhat test"
+    "clean": "hardhat clean",
+    "test": "hardhat test",
+    "mainnet:deploy": "hardhat deploy --network mainnet",
+    "mainnet:run": "hardhat run --network mainnet",
+    "mainnet:sourcify": "hardhat sourcify --network mainnet"
   },
   "repository": {
     "type": "git",

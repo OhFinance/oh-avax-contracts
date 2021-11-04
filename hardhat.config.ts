@@ -5,7 +5,7 @@ import 'dotenv/config';
 import 'tsconfig-paths/register';
 
 // hardhat config
-import {HardhatUserConfig, task} from 'hardhat/config';
+import {HardhatUserConfig} from 'hardhat/config';
 
 // hardhat
 import '@nomiclabs/hardhat-ethers';
@@ -30,6 +30,10 @@ const config: HardhatUserConfig = {
   abiExporter: {
     flat: true,
     clear: true,
+  },
+  spdxLicenseIdentifier: {
+    overwrite: false,
+    runOnCompile: true,
   },
   mocha: {
     timeout: 200000
@@ -98,11 +102,13 @@ const config: HardhatUserConfig = {
     },
     fuji: {
       chainId: 43113,
-      url: ''
+      url: '',
+      accounts: process.env.TESTNET_DEPLOYER_KEY ? [`0x${process.env.TESTNET_DEPLOYER_KEY}`] : [],
     },
     mainnet: {
       chainId: 43114,
-      url: ''
+      url: 'https://api.avax.network/ext/bc/C/rpc',
+      accounts: process.env.DEPLOYER_KEY ? [`0x${process.env.DEPLOYER_KEY}`] : [],
     }
   }
 }

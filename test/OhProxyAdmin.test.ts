@@ -1,14 +1,15 @@
 import {expect} from 'chai';
-import { deployments, getNamedAccounts } from 'hardhat';
-import { getProxyAdminContract, getRegistryContract } from '@ohfinance/oh-contracts/utils';
+import { getNamedAccounts } from 'hardhat';
+import { getProxyAdminContract, getRegistryContract } from '@ohfinance/oh-contracts/lib';
+import { setupProxyAdmin } from 'utils/fixture';
 
-describe('OhProxyAdmin', () => {
+describe('OhProxyAdmin', function () {
 
-  before(async () => {
-    await deployments.fixture(['OhProxyAdmin']);
+  before(async function () {
+    await setupProxyAdmin()
   });
 
-  it('is deployed correctly', async () => {
+  it('is deployed correctly', async function () {
     const {deployer} = await getNamedAccounts();
     const registry = await getRegistryContract(deployer)
     const proxyAdmin = await getProxyAdminContract(deployer)

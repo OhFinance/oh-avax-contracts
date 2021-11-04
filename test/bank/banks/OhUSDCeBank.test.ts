@@ -1,57 +1,22 @@
 import {expect} from 'chai';
-import {formatUnits, parseEther} from '@ethersproject/units';
-import {deployments, getNamedAccounts} from 'hardhat';
-import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBankerJoeStrategyContract, getUsdceBenqiStrategyContract } from 'utils/contract';
-import { advanceNBlocks, advanceNSeconds, getLiquidatorContract, getManagerContract, ONE_DAY } from '@ohfinance/oh-contracts/utils';
-import { addStrategy, getErc20At, setBank, setLiquidator, setSwapRoutes } from '@ohfinance/oh-contracts/lib';
-import { swapAvaxForTokens } from 'utils/swap';
+import {formatUnits} from '@ethersproject/units';
+import {getNamedAccounts} from 'hardhat';
+import { approve, deposit, finance, withdraw, getERC20Contract, getManagerContract, exit } from '@ohfinance/oh-contracts/lib';
+import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBankerJoeStrategyContract, getUsdceBenqiStrategyContract } from 'lib/contract';
+import { advanceNBlocks, advanceNSeconds, ONE_DAY } from '@ohfinance/oh-contracts/utils';
 import { BigNumber } from '@ethersproject/bignumber';
-import { IERC20 } from '@ohfinance/oh-contracts';
+import { IERC20 } from '@ohfinance/oh-contracts/types';
+import { setupUsdceBankTest } from 'utils/fixture';
 
-describe('Oh! USDC.e', async function() {
-  this.retries(3)
-
+describe('Oh! USDC.e', function () {
   let startingBalance: BigNumber
   let usdceToken: IERC20
 
-  beforeEach(async function () {
-    await deployments.fixture(["OhUsdceBank", "OhUsdceAaveV2Strategy", "OhUsdceBankerJoeStrategy", "OhUsdceBenqiStrategy"])
+  before(async function () {
+    await setupUsdceBankTest();
 
-    const { deployer, worker, usdce, joeRouter, token, benqi, joe, wavax } = await getNamedAccounts();
-    const liquidator = await getLiquidatorContract(deployer)
-    const manager = await getManagerContract(deployer)
-    const bank = await getUsdceBankContract(deployer)
-    const aaveV2Strategy = await getUsdceAaveV2StrategyContract(deployer)
-    const bankerJoeStrategy = await getUsdceBankerJoeStrategyContract(deployer)
-    const benqiStrategy = await getUsdceBenqiStrategyContract(deployer)
-
-    // buyback [usdc.e => wavax => oh]
-    await setSwapRoutes(deployer, liquidator.address, joeRouter, usdce, token, [usdce, wavax, token])
-    await setLiquidator(deployer, manager.address, liquidator.address, usdce, token)
-
-    // rewards [wavax => usdc.e] 
-    await setSwapRoutes(deployer, liquidator.address, joeRouter, wavax, usdce, [wavax, usdce])
-    await setLiquidator(deployer, manager.address, liquidator.address, wavax, usdce)
-
-    // rewards [joe => wavax => usdc.e] 
-    await setSwapRoutes(deployer, liquidator.address, joeRouter, joe, usdce, [joe, wavax, usdce])
-    await setLiquidator(deployer, manager.address, liquidator.address, joe, usdce)
-
-    // rewards [qi => wavax => usdc.e] 
-    await setSwapRoutes(deployer, liquidator.address, joeRouter, benqi, usdce, [benqi, wavax, usdce])
-    await setLiquidator(deployer, manager.address, liquidator.address, benqi, usdce)
-
-    // Setup Bank 
-    await setBank(deployer, manager.address, bank.address)
-    await addStrategy(deployer, manager.address, bank.address, aaveV2Strategy.address);
-    await addStrategy(deployer, manager.address, bank.address, bankerJoeStrategy.address)
-    await addStrategy(deployer, manager.address, bank.address, benqiStrategy.address);
-
-    // Buy USDC using the worker wallet
-    await swapAvaxForTokens(worker, usdce, parseEther('1000'));
-
-    // Check USDC balance and approve spending
-    usdceToken = await getErc20At(usdce, worker);
+    const {worker, usdce} = await getNamedAccounts()
+    usdceToken = await getERC20Contract(worker, usdce);
     startingBalance = await usdceToken.balanceOf(worker);
     console.log('Starting Balance:', formatUnits(startingBalance.toString(), 6));
   });
@@ -93,20 +58,18 @@ describe('Oh! USDC.e', async function() {
     const {worker} = await getNamedAccounts()
     const bank = await getUsdceBankContract(worker)
 
-    const balance = await usdceToken.balanceOf(worker);
-
-    await usdceToken.approve(bank.address, balance);
-    await bank.deposit(balance);
+    await approve(worker, usdceToken.address, bank.address, startingBalance);
+    await deposit(worker, bank.address, startingBalance);
 
     const bankBalance = await bank.underlyingBalance();
     const bankShares = await bank.balanceOf(worker);
 
-    await bank.withdraw(bankShares);
+    await withdraw(worker, bank.address, bankShares);
 
     const remainingShares = await bank.balanceOf(worker);
 
-    expect(bankBalance.toString()).eq(balance.toString());
-    expect(bankShares.toString()).eq(balance.toString());
+    expect(bankBalance.toString()).eq(startingBalance.toString());
+    expect(bankShares.toString()).eq(startingBalance.toString());
     expect(remainingShares.toNumber()).eq(0);
   });
 
@@ -117,16 +80,16 @@ describe('Oh! USDC.e', async function() {
 
     const balance = await usdceToken.balanceOf(worker);
     console.log('Starting Balance is:', formatUnits(balance.toString(), 6));
-    await usdceToken.approve(bank.address, balance);
+    await approve(worker, usdceToken.address, bank.address, balance);
 
     const amount = balance.div(3);
     for (let i = 0; i < 3; i++) {
-      await bank.deposit(amount);
+      await deposit(worker, bank.address, amount);
 
       const bankBalance = await bank.underlyingBalance();
 
       expect(bankBalance).to.be.eq(amount);
-      await manager.finance(bank.address);
+      await finance(worker, manager.address, bank.address);
 
       const strategyBalance = await bank.strategyBalance(i);
       console.log('Balance:', strategyBalance.toString());
@@ -148,12 +111,12 @@ describe('Oh! USDC.e', async function() {
     let batch = shares.div(10);
     const withdrawCount = 6;
     for (let i = 0; i < withdrawCount; i++) {
-      await bank.withdraw(batch.toString());
+      await withdraw(worker, bank.address, batch.toString());
     }
 
     let remainingShares = await bank.balanceOf(worker);
 
-    await bank.withdraw(remainingShares.toString());
+    await withdraw(worker, bank.address, remainingShares.toString());
 
     const endBalance = await usdceToken.balanceOf(worker);
     console.log('Ending Balance is:', formatUnits(endBalance.toString(), 6));

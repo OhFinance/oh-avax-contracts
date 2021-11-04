@@ -1,4 +1,4 @@
-import { getBankContract, getUpgradeableProxy } from "@ohfinance/oh-contracts/utils";
+import { getBankContract, getUpgradeableProxy } from "@ohfinance/oh-contracts/lib";
 import { ethers } from "hardhat";
 import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy } from "types";
 
