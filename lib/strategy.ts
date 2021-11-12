@@ -2,6 +2,7 @@ import { ethers, getNamedAccounts } from "hardhat";
 import OhAvalancheAaveV2Strategy from '../abi/OhAvalancheAaveV2Strategy.json';
 import OhAvalancheBenqiStrategy from '../abi/OhAvalancheBenqiStrategy.json'
 import OhAvalancheBankerJoeStrategy from '../abi/OhAvalancheBankerJoeStrategy.json';
+import OhCurveAPoolStrategy from '../abi/OhCurveAPoolStrategy.json';
 
 export const getInitializeAaveV2StrategyData = async (
   registry: string,
@@ -56,6 +57,21 @@ export const getInitializeBankerJoeStrategyData = async (
   const initializeData = strategyInterface.encodeFunctionData(
     'initializeBankerJoeStrategy(address,address,address,address,address,address,address)',
     [registry, bank, underlying, derivative, joe, wavax, joetroller]
+  );
+  return initializeData;
+};
+
+export const getInitializeCurveAPoolStrategyData = async (
+  registry: string,
+  bank: string,
+  underlying: string,
+  index: string
+) => {
+  const {crv, a3CrvToken, crvAPool, crvGauge, wavax} = await getNamedAccounts();
+  const strategyInterface = new ethers.utils.Interface(OhCurveAPoolStrategy);
+  const initializeData = strategyInterface.encodeFunctionData(
+    'initializeCurveAPoolStrategy(address,address,address,address,address,address,address,address,uint256)',
+    [registry, bank, underlying, a3CrvToken, crv, wavax, crvAPool, crvGauge, index]
   );
   return initializeData;
 };

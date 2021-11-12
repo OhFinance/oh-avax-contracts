@@ -3,52 +3,54 @@ import {formatUnits} from '@ethersproject/units';
 import { getNamedAccounts} from 'hardhat';
 import { approve, deposit, exit, finance, withdraw, getERC20Contract, getManagerContract } from '@ohfinance/oh-contracts/lib';
 import { advanceNBlocks, advanceNSeconds, ONE_DAY } from '@ohfinance/oh-contracts/utils';
-import { getAvalancheManagerContract, getUsdceBankContract, getUsdceBenqiStrategyContract } from 'lib/contract';
+import { getAvalancheManagerContract, getUsdceBankContract, getUsdceCurveAPoolStrategyContract } from 'lib/contract';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
 import { setupBankTest } from 'utils/fixture';
 import { updateBank } from 'utils/tasks';
 
-describe('OhAvalancheBenqiStrategy', function () {
-  let startingBalance: BigNumber
-  let usdceToken: IERC20
+describe('CurveAPoolStrategy', () => {
+  let usdceToken: IERC20;
+  let startingBalance: BigNumber;
 
-  before(async function () {
-    await setupBankTest()
+  before(async () => {
+    await setupBankTest();
 
     const { deployer, worker, usdce } = await getNamedAccounts();
     const bank = await getUsdceBankContract(deployer)
-    const benqiStrategy = await getUsdceBenqiStrategyContract(deployer)
+    const crvStrategy = await getUsdceCurveAPoolStrategyContract(deployer)
 
-    await updateBank(bank.address, [benqiStrategy.address])
+    await updateBank(bank.address, [crvStrategy.address])
 
     usdceToken = await getERC20Contract(worker, usdce);
     startingBalance = await usdceToken.balanceOf(worker);
     console.log('Starting Balance:', formatUnits(startingBalance.toString(), 6));
   });
 
-  it('deployed and initialized Avalanche Benqi USDC.e Strategy proxy correctly', async function () {
-    const {deployer, benqi, benqiUsdce, benqiComptroller, usdce, wavax} =
+  it('deployed and initialized Avalanche Curve APool USDCE Strategy proxy correctly', async () => {
+    const {deployer, crv, crvAPool, a3CrvToken, crvGauge, usdce, wavax} =
       await getNamedAccounts();
     const bank = await getUsdceBankContract(deployer)
-    const benqiStrategy = await getUsdceBenqiStrategyContract(deployer)
+    const crvStrategy = await getUsdceCurveAPoolStrategyContract(deployer)
 
-    const benqiStrategyBank = await benqiStrategy.bank();
-    const underlying = await benqiStrategy.underlying();
-    const derivative = await benqiStrategy.derivative();
-    const reward = await benqiStrategy.reward();
-    const extraReward = await benqiStrategy.extraReward();
-    const comptroller = await benqiStrategy.comptroller();
+    const crvBank = await crvStrategy.bank();
+    const underlying = await crvStrategy.underlying();
+    const derivative = await crvStrategy.derivative();
+    const reward = await crvStrategy.reward();
+    const pool = await crvStrategy.pool();
+    const gauge = await crvStrategy.gauge();
+    const index = await crvStrategy.index();
 
-    expect(benqiStrategyBank).eq(bank.address);
+    expect(crvBank).eq(bank.address);
     expect(underlying).eq(usdce);
-    expect(derivative).eq(benqiUsdce);
-    expect(reward).eq(benqi);
-    expect(extraReward).eq(wavax);
-    expect(comptroller).eq(benqiComptroller);
+    expect(derivative).eq(a3CrvToken);
+    expect(reward).eq(crv);
+    expect(pool).eq(crvAPool);
+    expect(gauge).eq(crvGauge);
+    expect(index).to.be.eq(1);
   });
 
-  it('finances and deposits into Benqi', async function () {
+  it('finances and deposits into Curve Aave Pool', async () => {
     const { worker } = await getNamedAccounts()
     const bank = await getUsdceBankContract(worker)
     const manager = await getAvalancheManagerContract(worker)
@@ -70,23 +72,23 @@ describe('OhAvalancheBenqiStrategy', function () {
     expect(strategyBalance).to.be.gt(0);
   });
 
-  it('liquidates rewards and compounds deposit', async function () {
+  it('liquidates rewards and compounds deposit', async () => {
     const {worker} = await getNamedAccounts();
     const manager = await getAvalancheManagerContract(worker)
     const bank = await getUsdceBankContract(worker)
-    const benqiStrategy = await getUsdceBenqiStrategyContract(worker)
+    const crvStrategy = await getUsdceCurveAPoolStrategyContract(worker)
 
-    // wait 1 day to accrue rewards (time-based)
+    // wait ~1 day in blocks to accrue rewards (comptroller rewards are block-based)
     await advanceNSeconds(ONE_DAY);
     await advanceNBlocks(1);
 
-    // finance to claim WAVAX and trigger liquidation
-    const balanceBefore = await benqiStrategy.investedBalance();
+    // finance to claim CRV & WAVAX from Gauge and trigger liquidation
+    const balanceBefore = await crvStrategy.investedBalance();
 
-    await finance(worker, manager.address, bank.address);
+    await manager.finance(bank.address);
 
-    const balanceAfter = await benqiStrategy.investedBalance();
-    console.log('Liquidated QI for', formatUnits(balanceAfter.sub(balanceBefore), 6), 'USDC.e');
+    const balanceAfter = await crvStrategy.investedBalance();
+    console.log('Liquidated CRV & WAVAX for', formatUnits(balanceAfter.sub(balanceBefore), 6), 'USDC');
 
     const strategyBalance = await bank.strategyBalance(0);
     console.log('Strategy Balance: ' + formatUnits(strategyBalance.toString(), 6));
@@ -96,14 +98,14 @@ describe('OhAvalancheBenqiStrategy', function () {
     expect(strategyBalance).to.be.gt(0);
   });
 
-  it('exits all and is profitable', async function () {
+  it('exits all and is profitable', async () => {
     const {deployer, worker} = await getNamedAccounts();
     const manager = await getAvalancheManagerContract(deployer)
     const bank = await getUsdceBankContract(worker)
-    const benqiStrategy = await getUsdceBenqiStrategyContract(worker)
+    const crvStrategy = await getUsdceCurveAPoolStrategyContract(worker)
 
     // Withdraw all from the strategy to the bank
-    await exit(deployer, manager.address, bank.address, benqiStrategy.address);
+    await exit(deployer, manager.address, bank.address, crvStrategy.address);
 
     // Check that underlying balance for the user is now greater than when the test started
     const virtualBalance = await bank.virtualBalance();
@@ -121,3 +123,4 @@ describe('OhAvalancheBenqiStrategy', function () {
     console.log('Ending Balance: ' + formatUnits(endingBalance.toString(), 6));
   });
 });
+7

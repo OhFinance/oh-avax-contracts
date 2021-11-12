@@ -1,6 +1,6 @@
 import { getBankContract, getUpgradeableProxy } from "@ohfinance/oh-contracts/lib";
 import { ethers } from "hardhat";
-import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy, OhAvalancheManager } from "types";
+import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy, OhCurveAPoolStrategy, OhAvalancheManager } from "types";
 
 export const getAvalancheManagerContract = async (signer: string, at?: string) => {
   if (at) {
@@ -28,6 +28,13 @@ export const getAvalancheBankerJoeStrategyContract = async (signer: string, at?:
     return (await ethers.getContractAt('OhAvalancheBankerJoeStrategy', at, signer)) as OhAvalancheBankerJoeStrategy;
   }
   return (await ethers.getContract('OhAvalancheBankerJoeStrategy', signer)) as OhAvalancheBankerJoeStrategy;
+};
+
+export const getCurveAPoolStrategyContract = async (signer: string, at?: string) => {
+  if (at) {
+    return (await ethers.getContractAt('OhCurveAPoolStrategy', at, signer)) as OhCurveAPoolStrategy;
+  }
+  return (await ethers.getContract('OhCurveAPoolStrategy', signer)) as OhCurveAPoolStrategy;
 };
 
 export const getUsdceBankProxyContract = async (signer: string) => {
@@ -65,3 +72,13 @@ export const getUsdceBankerJoeStrategyContract = async (signer:string) => {
   const proxy = await getUsdceBankerJoeStrategyProxyContract(signer);
   return await getAvalancheBankerJoeStrategyContract(signer, proxy.address);
 }
+
+export const getUsdceCurveAPoolStrategyProxyContract = async (signer: string) => {
+  return await getUpgradeableProxy(signer, 'OhUsdceCurveAPoolStrategy');
+};
+
+export const getUsdceCurveAPoolStrategyContract = async (signer:string) => {
+  const proxy = await getUsdceCurveAPoolStrategyProxyContract(signer);
+  return await getCurveAPoolStrategyContract(signer, proxy.address);
+}
+

@@ -1,5 +1,5 @@
 import { getNamedAccounts } from "hardhat";
-import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBankerJoeStrategyContract, getUsdceBenqiStrategyContract } from "lib/contract";
+import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBankerJoeStrategyContract, getUsdceBenqiStrategyContract, getUsdceCurveAPoolStrategyContract } from "lib/contract";
 import { updateBank } from "utils/tasks";
 
 async function main() {
@@ -9,8 +9,9 @@ async function main() {
     const aaveV2Strategy = await getUsdceAaveV2StrategyContract(deployer)
     const bankerJoeStrategy = await getUsdceBankerJoeStrategyContract(deployer)
     const benqiStrategy = await getUsdceBenqiStrategyContract(deployer)
+    const curveStrategy = await getUsdceCurveAPoolStrategyContract(deployer)
 
-    await updateBank(bank.address, [aaveV2Strategy.address, bankerJoeStrategy.address, benqiStrategy.address]);
+    await updateBank(bank.address, [aaveV2Strategy.address, bankerJoeStrategy.address, benqiStrategy.address, curveStrategy.address]);
   } catch (err) {
     console.error(err);
     return process.exit(1);
