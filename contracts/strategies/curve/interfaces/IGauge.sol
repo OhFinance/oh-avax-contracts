@@ -11,5 +11,5 @@ interface IGauge {
 
     function user_checkpoint(address) external;
 
-    function claim_rewards(address) external;
+    function claim_rewards(address, address) external;
 }

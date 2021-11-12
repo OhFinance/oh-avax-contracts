@@ -11,7 +11,7 @@ export const updateManager = async () => {
 }
 
 export const updateLiquidator = async () => {
-  const {deployer, joeRouter, token, usdce, wavax, benqi, joe} = await getNamedAccounts()
+  const {deployer, joeRouter, token, usdce, wavax, benqi, joe, crv} = await getNamedAccounts()
   const manager = await getAvalancheManagerContract(deployer)
   const liquidator = await getLiquidatorContract(deployer)
 
@@ -32,6 +32,10 @@ export const updateLiquidator = async () => {
   // rewards [qi => wavax => usdc.e] 
   await setSwapRoutes(deployer, liquidator.address, joeRouter, benqi, usdce, [benqi, wavax, usdce])
   await setLiquidator(deployer, manager.address, liquidator.address, benqi, usdce)
+
+  // rewards [crv => usdc.e] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, crv, usdce, [crv, wavax, usdce])
+  await setLiquidator(deployer, manager.address, liquidator.address, crv, usdce)
 }
 
 export const updateBank = async (bank: string, strategies: string[]) => {

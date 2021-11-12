@@ -103,7 +103,7 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
     function _deposit() internal {
         uint256 amount = underlyingBalance();
         if (amount > 0) {
-            // add liquidity to APool to receive a3CRV and WAVAX
+            // add liquidity to APool to receive CRV and WAVAX
             addLiquidity(pool(), underlying(), index(), amount, 1);
             // stake all received in the AAVE gauge
             stake(gauge(), derivative(), derivativeBalance());
@@ -131,10 +131,12 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
 
         // unstake from Gauge & remove liquidity from Pool
         unstake(gauge(), unstakeAmount);
-        removeLiquidity(pool(), index(), redeemAmount, unstakeAmount);
+        removeLiquidity(pool(), underlying(), index(), redeemAmount, type(uint256).max);
 
-        // withdraw to bank
+        // withdraw to bank-
         uint256 withdrawn = TransferHelper.safeTokenTransfer(recipient, underlying(), amount);
         return withdrawn;
     }
+
+    receive() external payable {}
 }

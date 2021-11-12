@@ -32,7 +32,7 @@ abstract contract OhCurveAPoolHelper {
         uint256[3] memory amounts = [uint256(0), uint256(0), uint256(0)];
         amounts[index] = amount;
         IERC20(underlying).safeIncreaseAllowance(pool, amount);
-        ICurveAPool(pool).add_liquidity(amounts, minMint);
+        ICurveAPool(pool).add_liquidity(amounts, minMint, true);
     }
 
     /// @notice Remove liquidity from Curve APool, receiving a single underlying
@@ -42,6 +42,7 @@ abstract contract OhCurveAPoolHelper {
     /// @param maxBurn The max LP tokens to burn before the tx reverts (slippage)
     function removeLiquidity(
         address pool,
+        address underlying,
         uint256 index,
         uint256 amount,
         uint256 maxBurn
@@ -52,13 +53,14 @@ abstract contract OhCurveAPoolHelper {
 
         uint256[3] memory amounts = [uint256(0), uint256(0), uint256(0)];
         amounts[index] = amount;
-        ICurveAPool(pool).remove_liquidity_imbalance(amounts, maxBurn);
+        IERC20(underlying).safeIncreaseAllowance(pool, amount);
+        ICurveAPool(pool).remove_liquidity_imbalance(amounts, maxBurn, true);
     }
 
     /// @notice Claim CRV rewards from the given RewardsOnlyGauge
     /// @param gauge The Gauge (Staking Contract) to claim from
     function claim(address gauge) internal {
-        IGauge(gauge).claim_rewards(msg.sender);
+        IGauge(gauge).claim_rewards(address(this), address(this));
     }
 
     /// @notice Calculate the max withdrawal amount to a single underlying
