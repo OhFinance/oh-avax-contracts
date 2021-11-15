@@ -42,6 +42,14 @@ const config: HardhatUserConfig = {
     deployer: 0,
     worker: 1,
     token: '0x937E077aBaEA52d3abf879c9b9d3f2eBd15BAA21', // Oh! Finance Anyswap ERC-20
+    ohLiquidator: '0xF955624a897A80A965FFA2E8472899CF3C571d34',
+    ohManager: '0xFB288999e57DA77de3832D425816F87856DC40B9',
+    ohProxyAdmin: '0x9a79E220B244A43C3c9E4bc427a270f71a5Ea595',
+    ohRegistry: '0x2046547d3768A94de530FBbA86CD821D4cCf0165',
+    ohUsdce: '0x8B1Be96dc17875ee01cC1984e389507Bb227CaAB',
+    ohUsdceAaveV2Strategy: '0xf6eFc37389e7A3af9ABde4D14e4b9C33F2f6EB5A',
+    ohUsdceBankerJoeStrategy: '0x98816EB4c559F2006eDb860e7ff6cb9C68d0C324',
+    ohUsdceBenqiStrategy: '0x390c1a5Dac5bAa501Ec8E31A041C4086791CecF7',
     aaveUsdce: {
       43114: '0x46A51127C3ce23fb7AB1DE06226147F446e4a857',
     },
@@ -109,7 +117,7 @@ const config: HardhatUserConfig = {
       live: false,
       forking: {
         url: process.env.AVALANCHE_RPC_URL ?? 'https://api.avax.network/ext/bc/C/rpc',
-        blockNumber: 6480000
+        blockNumber: 6980950
       }
     },
     fuji: {

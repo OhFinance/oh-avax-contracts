@@ -1,4 +1,4 @@
-import { getBankContract, getUpgradeableProxy } from "@ohfinance/oh-contracts/lib";
+import { getBankContract, getUpgradeableProxy, getUpgradeableProxyAt } from "@ohfinance/oh-contracts/lib";
 import { ethers } from "hardhat";
 import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy, OhCurveAPoolStrategy, OhAvalancheManager } from "types";
 
@@ -37,13 +37,21 @@ export const getCurveAPoolStrategyContract = async (signer: string, at?: string)
   return (await ethers.getContract('OhCurveAPoolStrategy', signer)) as OhCurveAPoolStrategy;
 };
 
-export const getUsdceBankProxyContract = async (signer: string) => {
+export const getUsdceBankProxyContract = async (signer: string, at?: string) => {
+  if (at) {
+    return await getUpgradeableProxy(signer, 'OhUsdceBank', at)
+  }
   return await getUpgradeableProxy(signer, 'OhUsdceBank');
 };
 
-export const getUsdceBankContract = async (signer:string) => {
-  const proxy = await getUsdceBankProxyContract(signer);
-  return await getBankContract(signer, proxy.address);
+export const getUsdceBankContract = async (signer:string, at?: string) => {
+  if (at) {
+    const proxy = await getUsdceBankProxyContract(signer, at);
+    return await getBankContract(signer, proxy.address);
+  } else {
+    const proxy = await getUsdceBankProxyContract(signer);
+    return await getBankContract(signer, proxy.address);
+  } 
 }
 
 export const getUsdceAaveV2StrategyProxyContract = async (signer: string) => {

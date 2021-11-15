@@ -33,7 +33,7 @@ export const updateLiquidator = async () => {
   await setSwapRoutes(deployer, liquidator.address, joeRouter, benqi, usdce, [benqi, wavax, usdce])
   await setLiquidator(deployer, manager.address, liquidator.address, benqi, usdce)
 
-  // rewards [crv => usdc.e] 
+  // rewards [crv => wavax => usdc.e] 
   await setSwapRoutes(deployer, liquidator.address, joeRouter, crv, usdce, [crv, wavax, usdce])
   await setLiquidator(deployer, manager.address, liquidator.address, crv, usdce)
 }
