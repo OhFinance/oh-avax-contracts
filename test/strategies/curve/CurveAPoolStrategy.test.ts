@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {formatUnits} from '@ethersproject/units';
 import { getNamedAccounts} from 'hardhat';
 import { approve, deposit, exit, finance, withdraw, getERC20Contract, getManagerContract } from '@ohfinance/oh-contracts/lib';
-import { advanceNBlocks, advanceNSeconds, ONE_DAY } from '@ohfinance/oh-contracts/utils';
+import { advanceNBlocks, advanceNSeconds, ONE_DAY, TWO_DAYS } from '@ohfinance/oh-contracts/utils';
 import { getAvalancheManagerContract, getUsdceBankContract, getUsdceCurveAPoolStrategyContract } from 'lib/contract';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
@@ -28,7 +28,7 @@ describe('CurveAPoolStrategy', () => {
   });
 
   it('deployed and initialized Avalanche Curve APool USDCE Strategy proxy correctly', async () => {
-    const {deployer, crv, crvAPool, a3CrvToken, crvGauge, usdce, wavax} =
+    const {deployer, crv, crvAPool, crvAToken, crvAGauge, usdce, wavax} =
       await getNamedAccounts();
     const bank = await getUsdceBankContract(deployer)
     const crvStrategy = await getUsdceCurveAPoolStrategyContract(deployer)
@@ -37,16 +37,18 @@ describe('CurveAPoolStrategy', () => {
     const underlying = await crvStrategy.underlying();
     const derivative = await crvStrategy.derivative();
     const reward = await crvStrategy.reward();
+    const secondaryReward = await crvStrategy.secondaryReward();
     const pool = await crvStrategy.pool();
     const gauge = await crvStrategy.gauge();
     const index = await crvStrategy.index();
 
     expect(crvBank).eq(bank.address);
     expect(underlying).eq(usdce);
-    expect(derivative).eq(a3CrvToken);
-    expect(reward).eq(crv);
+    expect(derivative).eq(crvAToken);
+    expect(reward).eq(wavax);
+    expect(secondaryReward).eq(crv);
     expect(pool).eq(crvAPool);
-    expect(gauge).eq(crvGauge);
+    expect(gauge).eq(crvAGauge);
     expect(index).to.be.eq(1);
   });
 
@@ -79,7 +81,7 @@ describe('CurveAPoolStrategy', () => {
     const crvStrategy = await getUsdceCurveAPoolStrategyContract(worker)
 
     // wait ~1 day in blocks to accrue rewards (comptroller rewards are block-based)
-    await advanceNSeconds(ONE_DAY);
+    await advanceNSeconds(TWO_DAYS);
     await advanceNBlocks(1);
 
     // finance to claim CRV & WAVAX from Gauge and trigger liquidation
@@ -123,4 +125,3 @@ describe('CurveAPoolStrategy', () => {
     console.log('Ending Balance: ' + formatUnits(endingBalance.toString(), 6));
   });
 });
-7

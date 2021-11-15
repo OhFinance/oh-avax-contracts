@@ -63,15 +63,15 @@ const config: HardhatUserConfig = {
       43114: '0x486Af39519B4Dc9a7fCcd318217352830E8AD9b4'
     },
     crv: {
-      43114: '0x249848BeCA43aC405b8102Ec90Dd5F22CA513c06'
+      43114: '0x47536F17F4fF30e64A96a7555826b8f9e66ec468'
     },
-    crvGauge: {
+    crvAGauge: {
       43114: '0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858'
     },
     crvAPool: {
       43114: '0x7f90122BF0700F9E7e1F688fe926940E8839F353'
     },
-    a3CrvToken: {
+    crvAToken: {
       43114: '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
     },
     joeRouter: {
@@ -109,7 +109,7 @@ const config: HardhatUserConfig = {
       live: false,
       forking: {
         url: process.env.AVALANCHE_RPC_URL ?? 'https://api.avax.network/ext/bc/C/rpc',
-        blockNumber: 6480000
+        blockNumber: 6900000
       }
     },
     fuji: {

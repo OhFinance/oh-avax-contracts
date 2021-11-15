@@ -40,13 +40,13 @@ export const setupUsdceBankTest  = deployments.createFixture(async ({deployments
 
   const {deployer, worker, usdce} = await getNamedAccounts()
   const bank = await getUsdceBankContract(deployer)
-  const aaveV2Strategy = await getUsdceAaveV2StrategyContract(deployer)
+  // const aaveV2Strategy = await getUsdceAaveV2StrategyContract(deployer)
   const bankerJoeStrategy = await getUsdceBankerJoeStrategyContract(deployer)
   const benqiStrategy = await getUsdceBenqiStrategyContract(deployer)
   const curveStrategy = await getUsdceCurveAPoolStrategyContract(deployer)
 
   // Add Bank and Strategies to Manager
-  await updateBank(bank.address, [aaveV2Strategy.address, bankerJoeStrategy.address, benqiStrategy.address, curveStrategy.address])
+  await updateBank(bank.address, [bankerJoeStrategy.address, benqiStrategy.address, curveStrategy.address])
 
   // buy USDC.e for worker
   await swapAvaxForTokens(worker, usdce, parseEther('1000'));

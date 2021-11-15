@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {formatUnits} from '@ethersproject/units';
 import {getNamedAccounts} from 'hardhat';
 import { approve, deposit, finance, withdraw, getERC20Contract, getManagerContract, exit } from '@ohfinance/oh-contracts/lib';
-import { getAvalancheManagerContract, getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBankerJoeStrategyContract, getUsdceBenqiStrategyContract } from 'lib/contract';
+import { getAvalancheManagerContract, getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBankerJoeStrategyContract, getUsdceBenqiStrategyContract, getUsdceCurveAPoolStrategyContract } from 'lib/contract';
 import { advanceNBlocks, advanceNSeconds, ONE_DAY } from '@ohfinance/oh-contracts/utils';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
@@ -42,16 +42,19 @@ describe('Oh! USDC.e', function () {
     const aaveV2Strategy = await getUsdceAaveV2StrategyContract(deployer)
     const bankerJoeStrategy = await getUsdceBankerJoeStrategyContract(deployer)
     const benqiStrategy = await getUsdceBenqiStrategyContract(deployer)
+    const curveStrategy = await getUsdceCurveAPoolStrategyContract(deployer)
 
     const totalStrategies = await bank.totalStrategies();
-    const aaveV2StrategyAddress = await bank.strategies(0);
-    const bankerJoeStrategyAddress = await bank.strategies(1);
-    const benqiStrategyAddress = await bank.strategies(2);
+    // const aaveV2StrategyAddress = await bank.strategies(0);
+    const bankerJoeStrategyAddress = await bank.strategies(0);
+    const benqiStrategyAddress = await bank.strategies(1);
+    const curveStrategyAddress = await bank.strategies(2);
 
     expect(totalStrategies.toNumber()).eq(3);
-    expect(aaveV2StrategyAddress).eq(aaveV2Strategy.address);
+    // expect(aaveV2StrategyAddress).eq(aaveV2Strategy.address);
     expect(bankerJoeStrategyAddress).eq(bankerJoeStrategy.address);
     expect(benqiStrategyAddress).eq(benqiStrategy.address);
+    expect(curveStrategyAddress).eq(curveStrategy.address)
   });
 
   it('allows one user to deposit and withdraw from the Oh! USDC.e Bank', async function () {
@@ -77,13 +80,14 @@ describe('Oh! USDC.e', function () {
     const {worker} = await getNamedAccounts()
     const bank = await getUsdceBankContract(worker)
     const manager = await getAvalancheManagerContract(worker);
+    const totalStrategies = await bank.totalStrategies();
 
     const balance = await usdceToken.balanceOf(worker);
     console.log('Starting Balance is:', formatUnits(balance.toString(), 6));
     await approve(worker, usdceToken.address, bank.address, balance);
 
-    const amount = balance.div(3);
-    for (let i = 0; i < 3; i++) {
+    const amount = balance.div(totalStrategies);
+    for (let i = 0; i < totalStrategies.toNumber(); i++) {
       await deposit(worker, bank.address, amount);
 
       const bankBalance = await bank.underlyingBalance();
@@ -115,7 +119,6 @@ describe('Oh! USDC.e', function () {
     }
 
     let remainingShares = await bank.balanceOf(worker);
-
     await withdraw(worker, bank.address, remainingShares.toString());
 
     const endBalance = await usdceToken.balanceOf(worker);

@@ -67,11 +67,11 @@ export const getInitializeCurveAPoolStrategyData = async (
   underlying: string,
   index: string
 ) => {
-  const {crv, a3CrvToken, crvAPool, crvGauge, wavax} = await getNamedAccounts();
+  const {crv, crvAToken, crvAPool, crvAGauge, wavax} = await getNamedAccounts();
   const strategyInterface = new ethers.utils.Interface(OhCurveAPoolStrategy);
   const initializeData = strategyInterface.encodeFunctionData(
     'initializeCurveAPoolStrategy(address,address,address,address,address,address,address,address,uint256)',
-    [registry, bank, underlying, a3CrvToken, crv, wavax, crvAPool, crvGauge, index]
+    [registry, bank, underlying, crvAToken, wavax, crv, crvAPool, crvAGauge, index]
   );
   return initializeData;
 };

@@ -53,7 +53,7 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
 
     // calculate the total underlying balance
     function investedBalance() public view override returns (uint256) {
-        return calcWithdraw(pool(), stakedBalance(), int128(index()));
+        return calcWithdraw(pool(), stakedBalance(), index());
     }
 
     // Get the balance of secondary rewards received by the Strategy
@@ -61,7 +61,7 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
         return IERC20(secondaryReward()).balanceOf(address(this));
     }
 
-    // amount of 3CRV staked in the Gauge
+    // amount of av3CRV staked in the Gauge
     function stakedBalance() public view returns (uint256) {
         return staked(gauge());
     }
@@ -105,7 +105,7 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
         }
     }
 
-    // deposit underlying into APool to get a3CRV and stake into Gauge
+    // deposit underlying into APool to get av3CRV and stake into Gauge
     function _deposit() internal {
         uint256 amount = underlyingBalance();
         if (amount > 0) {
@@ -117,7 +117,6 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
     }
 
     // withdraw underlying tokens from the protocol
-    // TODO: Double check withdrawGauge math, TransferHelper
     function _withdraw(address recipient, uint256 amount) internal returns (uint256) {
         if (amount == 0) {
             return 0;
@@ -129,15 +128,15 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
         // calculate % of supply ownership
         uint256 supplyShare = amount.mul(1e18).div(invested);
 
-        // find amount to unstake in 3CRV
+        // find amount to unstake in av3crv, 1e18
         uint256 unstakeAmount = Math.min(staked, supplyShare.mul(staked).div(1e18));
 
-        // find amount to redeem in underlying
+        // find amount to redeem in underlying, 1e6
         uint256 redeemAmount = Math.min(invested, supplyShare.mul(invested).div(1e18));
 
-        // unstake from Gauge & remove liquidity from Pool
+        // unstake from Gauge and remove liquidity from Pool
         unstake(gauge(), unstakeAmount);
-        removeLiquidity(pool(), index(), redeemAmount, unstakeAmount);
+        removeLiquidity(pool(), index(), unstakeAmount, redeemAmount);
 
         // withdraw to bank-
         uint256 withdrawn = TransferHelper.safeTokenTransfer(recipient, underlying(), amount);

@@ -35,24 +35,23 @@ abstract contract OhCurveAPoolHelper {
         ICurveAPool(pool).add_liquidity(amounts, minMint, true);
     }
 
+
     /// @notice Remove liquidity from Curve APool, receiving a single underlying
     /// @param pool The Curve APool
     /// @param index The index of underlying we want to withdraw
-    /// @param amount The amount to withdraw
-    /// @param maxBurn The max LP tokens to burn before the tx reverts (slippage)
+    /// @param amount The amount of LP tokens to withdraw
+    /// @param minAmount The min underlying tokens to receive before the tx reverts (slippage)
     function removeLiquidity(
         address pool,
         uint256 index,
         uint256 amount,
-        uint256 maxBurn
+        uint256 minAmount
     ) internal {
         if (amount == 0) {
             return;
         }
 
-        uint256[3] memory amounts = [uint256(0), uint256(0), uint256(0)];
-        amounts[index] = amount;
-        ICurveAPool(pool).remove_liquidity_imbalance(amounts, maxBurn, true);
+        ICurveAPool(pool).remove_liquidity_one_coin(amount, int128(index), minAmount, true);
     }
 
     /// @notice Claim CRV rewards from the given RewardsOnlyGauge
@@ -63,18 +62,18 @@ abstract contract OhCurveAPoolHelper {
 
     /// @notice Calculate the max withdrawal amount to a single underlying
     /// @param pool The Curve LP Pool
-    /// @param amount The amount of underlying to deposit
+    /// @param amount The amount of LP tokens to withdraw
     /// @param index The index of the underlying in the LP Pool
     function calcWithdraw(
         address pool,
         uint256 amount,
-        int128 index
+        uint256 index
     ) internal view returns (uint256) {
         if (amount == 0) {
             return 0;
         }
 
-        return ICurveAPool(pool).calc_withdraw_one_coin(amount, index);
+        return ICurveAPool(pool).calc_withdraw_one_coin(amount, int128(index));
     }
 
     /// @notice Get the balance of staked tokens in a given Gauge
