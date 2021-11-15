@@ -5,7 +5,7 @@ import {getInitializeBankerJoeStrategyData} from 'lib/strategy';
 // deploy the Oh! USDCe Bank Proxies
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployments, ethers, getNamedAccounts} = hre;
-  const {deployer, usdce, joeUsdce, joe, wavax, joetroller} = await getNamedAccounts();
+  const {deployer, usdce, joeUsdce} = await getNamedAccounts();
   const {deploy, log} = deployments;
 
   log('USDC.e - Oh! USDCE Banker Joe Strategy');
@@ -19,10 +19,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     registry.address,
     ohUsdceBank.address,
     usdce,
-    joeUsdce,
-    joe,
-    wavax,
-    joetroller,
+    joeUsdce
   );
   const constructorArgs = [bjLogic.address, proxyAdmin.address, data];
 

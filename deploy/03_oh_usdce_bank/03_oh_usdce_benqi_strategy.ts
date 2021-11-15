@@ -5,7 +5,7 @@ import { getInitializeBenqiStrategyData } from 'lib/strategy';
 // deploy the Oh! USDC Bank Proxies
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployments, ethers, getNamedAccounts} = hre;
-  const {deployer, usdce, benqiUsdce, benqi, benqiComptroller, wavax} = await getNamedAccounts();
+  const {deployer, usdce, benqiUsdce} = await getNamedAccounts();
   const {deploy, log} = deployments;
 
   log('USDC.e - Oh! USDCE AaveV2 Strategy');
@@ -20,10 +20,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     registry.address,
     ohUsdceBank.address,
     usdce,
-    benqiUsdce,
-    benqi,
-    wavax,
-    benqiComptroller
+    benqiUsdce
   );
   const constructorArgs = [benqiLogic.address, proxyAdmin.address, data];
 

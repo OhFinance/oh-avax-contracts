@@ -109,7 +109,7 @@ const config: HardhatUserConfig = {
       live: false,
       forking: {
         url: process.env.AVALANCHE_RPC_URL ?? 'https://api.avax.network/ext/bc/C/rpc',
-        blockNumber: 6900000
+        blockNumber: 6480000
       }
     },
     fuji: {

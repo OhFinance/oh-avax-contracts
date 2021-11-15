@@ -32,6 +32,7 @@ contract OhAvalancheBankerJoeStrategy is IStrategy, OhAvalancheBankerJoeHelper, 
     /// @param underlying_ the underlying token that is deposited
     /// @param derivative_ the JToken address received from BankerJoe
     /// @param reward_ the address of the reward token JOE
+    /// @param secondaryReward_ the address of the reward token WAVAX
     /// @param joetroller_ the BankerJoe rewards contract
     /// @dev The function should be called at time of deployment
     function initializeBankerJoeStrategy(
@@ -40,11 +41,11 @@ contract OhAvalancheBankerJoeStrategy is IStrategy, OhAvalancheBankerJoeHelper, 
         address underlying_,
         address derivative_,
         address reward_,
-        address extraReward_,
+        address secondaryReward_,
         address joetroller_
     ) public initializer {
         initializeStrategy(registry_, bank_, underlying_, derivative_, reward_);
-        initializeBankerJoeStorage(extraReward_, joetroller_);
+        initializeBankerJoeStorage(secondaryReward_, joetroller_);
 
         IERC20(derivative_).safeApprove(underlying_, type(uint256).max);
     }
@@ -58,8 +59,13 @@ contract OhAvalancheBankerJoeStrategy is IStrategy, OhAvalancheBankerJoeHelper, 
     }
 
     // Get the balance of extra rewards received by the Strategy
-    function extraRewardBalance() public view returns (uint256) {
-        return IERC20(extraReward()).balanceOf(address(this));
+    function secondaryRewardBalance() public view returns (uint256) {
+        address secondaryReward = secondaryReward();
+        if (secondaryReward == address(0)) {
+            return 0;
+        }
+    
+        return IERC20(secondaryReward).balanceOf(address(this));
     }
 
     function invest() external override onlyBank {
@@ -68,18 +74,27 @@ contract OhAvalancheBankerJoeStrategy is IStrategy, OhAvalancheBankerJoeHelper, 
     }
 
     function _compound() internal {
-        claim(joetroller(), 0);
+        _claimAll();
+
         uint256 amount = rewardBalance();
         if (amount > 0) {
             liquidate(reward(), underlying(), amount);
         }
 
-        claim(joetroller(), 1);
-        wrap(extraReward(), address(this).balance);
-        uint256 extraAmount = extraRewardBalance();
-        if (extraAmount > 0) {
-            liquidate(extraReward(), underlying(), extraAmount);
+        
+        uint256 secondaryAmount = secondaryRewardBalance();
+        if (secondaryAmount > 0) {
+            liquidate(secondaryReward(), underlying(), secondaryAmount);
         }
+    }
+
+    function _claimAll() internal {
+        // Claim JOE
+        claim(joetroller(), 0);
+        
+        // Claim and wrap AVAX
+        claim(joetroller(), 1);
+        wrap(secondaryReward(), address(this).balance);
     }
 
     // deposit underlying tokens into BankerJoe, minting JTokens
@@ -108,8 +123,15 @@ contract OhAvalancheBankerJoeStrategy is IStrategy, OhAvalancheBankerJoeHelper, 
             return 0;
         }
 
-        // calculate amount of shares to redeem
         uint256 invested = investedBalance();
+        if (invested == 0) {
+            return 0;
+        }
+
+        // claim rewards before withdrawal to avoid forfeiting
+        _claimAll();
+
+        // calculate amount to redeem by supply ownership
         uint256 supplyShare = amount.mul(1e18).div(invested);
         uint256 redeemAmount = supplyShare.mul(invested).div(1e18);
 

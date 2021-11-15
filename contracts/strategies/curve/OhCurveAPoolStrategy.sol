@@ -58,7 +58,12 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
 
     // Get the balance of secondary rewards received by the Strategy
     function secondaryRewardBalance() public view returns (uint256) {
-        return IERC20(secondaryReward()).balanceOf(address(this));
+        address secondaryReward = secondaryReward();
+        if (secondaryReward == address(0)) {
+            return 0;
+        }
+    
+        return IERC20(secondaryReward).balanceOf(address(this));
     }
 
     // amount of av3CRV staked in the Gauge
@@ -123,6 +128,10 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
         }
 
         uint256 invested = investedBalance();
+        if (invested == 0) {
+            return 0;
+        }
+
         uint256 staked = stakedBalance();
 
         // calculate % of supply ownership
@@ -138,7 +147,7 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
         unstake(gauge(), unstakeAmount);
         removeLiquidity(pool(), index(), unstakeAmount, redeemAmount);
 
-        // withdraw to bank-
+        // withdraw to bank
         uint256 withdrawn = TransferHelper.safeTokenTransfer(recipient, underlying(), amount);
         return withdrawn;
     }

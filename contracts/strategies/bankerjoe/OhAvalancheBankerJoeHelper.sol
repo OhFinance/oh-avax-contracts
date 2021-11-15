@@ -124,10 +124,14 @@ abstract contract OhAvalancheBankerJoeHelper {
 
     /// @notice Claim JOE rewards from Joetroller for this address
     /// @param joetroller The BankerJoe Joetroller, Reward Contract
+    /// @param rewardType Reward type: 0 = JOE, 1 = AVAX
     function claim(address joetroller, uint8 rewardType) internal {
         IJoetroller(joetroller).claimReward(rewardType, address(this));
     }
 
+    /// @notice Wrap AVAX to WAVAX
+    /// @param wavax Address of WAVAX
+    /// @param amount Amount of AVAX to wrap
     function wrap(address wavax, uint256 amount) internal {
         if (amount == 0) {
             return;

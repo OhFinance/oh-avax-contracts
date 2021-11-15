@@ -31,15 +31,13 @@ export const getInitializeBenqiStrategyData = async (
   registry: string,
   bank: string,
   underlying: string,
-  derivative: string,
-  reward: string,
-  extraReward: string,
-  comptroller: string
+  derivative: string
 ) => {
+  const {benqi, benqiComptroller, wavax} = await getNamedAccounts();
   const strategyInterface = new ethers.utils.Interface(OhAvalancheBenqiStrategy);
   const initializeData = strategyInterface.encodeFunctionData(
     'initializeBenqiStrategy(address,address,address, address,address,address,address)',
-    [registry, bank, underlying, derivative, reward, extraReward, comptroller]
+    [registry, bank, underlying, derivative, benqi, wavax, benqiComptroller]
   );
   return initializeData;
 };
@@ -48,11 +46,9 @@ export const getInitializeBankerJoeStrategyData = async (
   registry: string,
   bank: string,
   underlying: string,
-  derivative: string,
-  joe: string,
-  wavax: string,
-  joetroller: string
+  derivative: string
 ) => {
+  const {joe, joetroller, wavax} = await getNamedAccounts();
   const strategyInterface = new ethers.utils.Interface(OhAvalancheBankerJoeStrategy);
   const initializeData = strategyInterface.encodeFunctionData(
     'initializeBankerJoeStrategy(address,address,address,address,address,address,address)',

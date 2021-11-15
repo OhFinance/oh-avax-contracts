@@ -37,14 +37,14 @@ describe('OhAvalancheBenqiStrategy', function () {
     const underlying = await benqiStrategy.underlying();
     const derivative = await benqiStrategy.derivative();
     const reward = await benqiStrategy.reward();
-    const extraReward = await benqiStrategy.extraReward();
+    const secondaryReward = await benqiStrategy.secondaryReward();
     const comptroller = await benqiStrategy.comptroller();
 
     expect(benqiStrategyBank).eq(bank.address);
     expect(underlying).eq(usdce);
     expect(derivative).eq(benqiUsdce);
     expect(reward).eq(benqi);
-    expect(extraReward).eq(wavax);
+    expect(secondaryReward).eq(wavax);
     expect(comptroller).eq(benqiComptroller);
   });
 

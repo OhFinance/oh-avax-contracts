@@ -7,17 +7,25 @@ import {OhUpgradeable} from "@ohfinance/oh-contracts/contracts/proxy/OhUpgradeab
 import {IAvalancheBenqiStrategyStorage} from "../../interfaces/strategies/benqi/IAvalancheBenqiStrategyStorage.sol";
 
 contract OhAvalancheBenqiStrategyStorage is Initializable, OhUpgradeable, IAvalancheBenqiStrategyStorage {
-    bytes32 internal constant _EXTRA_REWARD_SLOT = 0xf2cb7633197ad5c3d2c45444a2d158a3bab1c87ccd1ead8e7d92ff6b3750217d;
+    bytes32 internal constant _SECONDARY_REWARD_SLOT = 0x16bda68537f666a68a423fc52f9a686ea81b226a5c034d2dfb63b5b749ceb83c;
     bytes32 internal constant _COMPTROLLER_SLOT = 0x2ef367ab1438cccede22571406f238368481af421cdc06cfd765d150e76c9965;
 
     constructor() {
-        assert(_EXTRA_REWARD_SLOT == bytes32(uint256(keccak256("eip1967.benqiStrategy.extraReward")) - 1));
+        assert(_SECONDARY_REWARD_SLOT == bytes32(uint256(keccak256("eip1967.benqiStrategy.secondaryReward")) - 1));
         assert(_COMPTROLLER_SLOT == bytes32(uint256(keccak256("eip1967.benqiStrategy.comptroller")) - 1));
     }
 
-    function initializeBenqiStorage(address extraReward_, address comptroller_) internal initializer {
-        _setExtraReward(extraReward_);
+    function initializeBenqiStorage(address secondaryReward_, address comptroller_) internal initializer {
+        _setSecondaryReward(secondaryReward_);
         _setComptroller(comptroller_);
+    }
+
+    function secondaryReward() public view override returns (address) {
+        return getAddress(_SECONDARY_REWARD_SLOT);
+    }
+
+    function _setSecondaryReward(address secondaryReward_) internal {
+        setAddress(_SECONDARY_REWARD_SLOT, secondaryReward_);
     }
 
     function comptroller() public view override returns (address) {
@@ -26,13 +34,5 @@ contract OhAvalancheBenqiStrategyStorage is Initializable, OhUpgradeable, IAvala
 
     function _setComptroller(address comptroller_) internal {
         setAddress(_COMPTROLLER_SLOT, comptroller_);
-    }
-
-    function extraReward() public view override returns (address) {
-        return getAddress(_EXTRA_REWARD_SLOT);
-    }
-
-    function _setExtraReward(address extraReward_) internal {
-        setAddress(_EXTRA_REWARD_SLOT, extraReward_);
     }
 }

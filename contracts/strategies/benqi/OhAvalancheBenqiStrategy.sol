@@ -32,7 +32,7 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
     /// @param underlying_ the underlying token that is deposited
     /// @param derivative_ the qiToken address received from Benqi
     /// @param reward_ the address of the reward token QI
-    /// @param extraReward_ the address of the reward token WAVAX
+    /// @param secondaryReward_ the address of the reward token WAVAX
     /// @param comptroller_ the Benqi rewards contract
     /// @dev The function should be called at time of deployment
     function initializeBenqiStrategy(
@@ -41,11 +41,11 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
         address underlying_,
         address derivative_,
         address reward_,
-        address extraReward_,
+        address secondaryReward_,
         address comptroller_
     ) public initializer {
         initializeStrategy(registry_, bank_, underlying_, derivative_, reward_);
-        initializeBenqiStorage(extraReward_, comptroller_);
+        initializeBenqiStorage(secondaryReward_, comptroller_);
 
         IERC20(derivative_).safeApprove(underlying_, type(uint256).max);
     }
@@ -59,8 +59,13 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
     }
 
     // Get the balance of extra rewards received by the Strategy
-    function extraRewardBalance() public view returns (uint256) {
-        return IERC20(extraReward()).balanceOf(address(this));
+    function secondaryRewardBalance() public view returns (uint256) {
+        address secondaryReward = secondaryReward();
+        if (secondaryReward == address(0)) {
+            return 0;
+        }
+    
+        return IERC20(secondaryReward).balanceOf(address(this));
     }
 
     function invest() external override onlyBank {
@@ -69,18 +74,26 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
     }
 
     function _compound() internal {
-        claim(comptroller(), 0);
+        _claimAll();
+
         uint256 amount = rewardBalance();
         if (amount > 0) {
             liquidate(reward(), underlying(), amount);
         }
 
-        claim(comptroller(), 1);
-        wrap(extraReward(), address(this).balance);
-        uint256 extraAmount = extraRewardBalance();
-        if (extraAmount > 0) {
-            liquidate(extraReward(), underlying(), extraAmount);
+        uint256 secondaryAmount = secondaryRewardBalance();
+        if (secondaryAmount > 0) {
+            liquidate(secondaryReward(), underlying(), secondaryAmount);
         }
+    }
+
+    function _claimAll() internal {
+        // Claim QI
+        claim(comptroller(), 0);
+
+        // Claim and wrap AVAX
+        claim(comptroller(), 1);
+        wrap(secondaryReward(), address(this).balance);
     }
 
     // deposit underlying tokens into Benqi, minting qiTokens
@@ -109,8 +122,12 @@ contract OhAvalancheBenqiStrategy is IStrategy, OhAvalancheBenqiHelper, OhStrate
             return 0;
         }
 
-        // calculate amount of shares to redeem
         uint256 invested = investedBalance();
+        if (invested == 0) {
+            return 0;
+        }
+
+        // calculate amount to redeem by supply ownership
         uint256 supplyShare = amount.mul(1e18).div(invested);
         uint256 redeemAmount = supplyShare.mul(invested).div(1e18);
 

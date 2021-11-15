@@ -106,10 +106,14 @@ abstract contract OhAvalancheBenqiHelper {
 
     /// @notice Claim QI rewards from Comptroller for this address
     /// @param comptroller The Benqi Comptroller, Reward Contract
+    /// @param rewardType Reward type: 0 = QI, 1 = AVAX
     function claim(address comptroller, uint rewardType) internal {
         IBenqiComptroller(comptroller).claimReward(uint8(rewardType), address(this));
     }
 
+    /// @notice Wrap AVAX to WAVAX
+    /// @param wavax Address of WAVAX
+    /// @param amount Amount of AVAX to wrap
     function wrap(address wavax, uint256 amount) internal {
         if (amount == 0) {
             return;
