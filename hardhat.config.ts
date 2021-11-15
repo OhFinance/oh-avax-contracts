@@ -47,9 +47,9 @@ const config: HardhatUserConfig = {
     ohProxyAdmin: '0x9a79E220B244A43C3c9E4bc427a270f71a5Ea595',
     ohRegistry: '0x2046547d3768A94de530FBbA86CD821D4cCf0165',
     ohUsdce: '0x8B1Be96dc17875ee01cC1984e389507Bb227CaAB',
-    ohUsdceAaveV2Strategy: '0xf6eFc37389e7A3af9ABde4D14e4b9C33F2f6EB5A',
-    ohUsdceBankerJoeStrategy: '0x98816EB4c559F2006eDb860e7ff6cb9C68d0C324',
-    ohUsdceBenqiStrategy: '0x390c1a5Dac5bAa501Ec8E31A041C4086791CecF7',
+    ohUsdceAaveV2Strategy: '0xf6eFc37389e7A3af9ABde4D14e4b9C33F2f6EB5A', // old
+    ohUsdceBankerJoeStrategy: '0x98816EB4c559F2006eDb860e7ff6cb9C68d0C324', // old
+    ohUsdceBenqiStrategy: '0x390c1a5Dac5bAa501Ec8E31A041C4086791CecF7', // old
     aaveUsdce: {
       43114: '0x46A51127C3ce23fb7AB1DE06226147F446e4a857',
     },
