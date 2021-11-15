@@ -42,7 +42,6 @@ abstract contract OhCurveAPoolHelper {
     /// @param maxBurn The max LP tokens to burn before the tx reverts (slippage)
     function removeLiquidity(
         address pool,
-        address underlying,
         uint256 index,
         uint256 amount,
         uint256 maxBurn
@@ -53,7 +52,6 @@ abstract contract OhCurveAPoolHelper {
 
         uint256[3] memory amounts = [uint256(0), uint256(0), uint256(0)];
         amounts[index] = amount;
-        IERC20(underlying).safeIncreaseAllowance(pool, amount);
         ICurveAPool(pool).remove_liquidity_imbalance(amounts, maxBurn, true);
     }
 

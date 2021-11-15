@@ -25,7 +25,6 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
         assert(bank() == address(0));
         assert(underlying() == address(0));
         assert(reward() == address(0));
-        assert(secondaryReward() == address(0));
     }
 
     /// @notice Initialize the Curve APool Strategy Proxy
@@ -48,13 +47,18 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
         address gauge_,
         uint256 index_
     ) public initializer {
-        initialize2RewardStrategy(registry_, bank_, underlying_, derivative_, reward_, secondaryReward_);
-        initializeCurveAPoolStorage(pool_, gauge_, index_);
+        initializeStrategy(registry_, bank_, underlying_, derivative_, reward_);
+        initializeCurveAPoolStorage(secondaryReward_, pool_, gauge_, index_);
     }
 
     // calculate the total underlying balance
     function investedBalance() public view override returns (uint256) {
         return calcWithdraw(pool(), stakedBalance(), int128(index()));
+    }
+
+    // Get the balance of secondary rewards received by the Strategy
+    function secondaryRewardBalance() public view returns (uint256) {
+        return IERC20(secondaryReward()).balanceOf(address(this));
     }
 
     // amount of 3CRV staked in the Gauge
@@ -89,11 +93,13 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
     function _compound() internal {
         // claim available CRV and WAVAX rewards
         claim(gauge());
+
         uint256 rewardAmount = rewardBalance();
-        uint256 secondaryRewardAmount = secondaryRewardBalance();
         if (rewardAmount > 0) {
             liquidate(reward(), underlying(), rewardAmount);
         }
+
+        uint256 secondaryRewardAmount = secondaryRewardBalance();
         if (secondaryRewardAmount > 0) {
             liquidate(secondaryReward(), underlying(), secondaryRewardAmount);
         }
@@ -131,12 +137,10 @@ contract OhCurveAPoolStrategy is OhStrategy, OhCurveAPoolStrategyStorage, OhCurv
 
         // unstake from Gauge & remove liquidity from Pool
         unstake(gauge(), unstakeAmount);
-        removeLiquidity(pool(), underlying(), index(), redeemAmount, type(uint256).max);
+        removeLiquidity(pool(), index(), redeemAmount, unstakeAmount);
 
         // withdraw to bank-
         uint256 withdrawn = TransferHelper.safeTokenTransfer(recipient, underlying(), amount);
         return withdrawn;
     }
-
-    receive() external payable {}
 }
