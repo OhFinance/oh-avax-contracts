@@ -61,6 +61,9 @@ const config: HardhatUserConfig = {
       43113: '0xa1EF206fb9a8D8186157FC817fCddcC47727ED55',
       43114: '0x01D83Fe6A10D2f2B7AF17034343746188272cAc9',
     },
+    alpha: {
+      43114: '0x0000000000000000000000000000000000000000' // Zero address until the Alpha Token contract is deployed on Avalanche
+    },
     benqi: {
       43114: '0x8729438EB15e2C8B576fCc6AeCdA6A148776C0F5',
     },
@@ -81,6 +84,15 @@ const config: HardhatUserConfig = {
     },
     crvAToken: {
       43114: '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
+    },
+    ibUSDCv2Token: {
+      43114: '0xD3843b60e69f958eF93BeC299467e6Ed301CbEeB' 
+    },
+    crUSDCeToken: {
+      43114: '0xe28965073c49a02923882b8329d3e8c1d805e832' // CREAM USDCe Token
+    },
+    usdcSafeBox: {
+      43114: '0xD3843b60e69f958eF93BeC299467e6Ed301CbEeB' // ibUSDC token is same address as SafeBox
     },
     joeRouter: {
       43114: '0x60aE616a2155Ee3d9A68541Ba4544862310933d4'

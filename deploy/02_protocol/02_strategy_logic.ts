@@ -35,6 +35,13 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     deterministicDeployment: false,
     skipIfAlreadyDeployed: false,
   });
+
+  await deploy('OhAlphaHomoraV2Strategy', {
+    from: deployer,
+    log: true,
+    deterministicDeployment: false,
+    skipIfAlreadyDeployed: false,
+  });
 };
 
 deploy.tags = ['Protocol', 'OhStrategy'];

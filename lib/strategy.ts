@@ -3,6 +3,7 @@ import OhAvalancheAaveV2Strategy from '../abi/OhAvalancheAaveV2Strategy.json';
 import OhAvalancheBenqiStrategy from '../abi/OhAvalancheBenqiStrategy.json'
 import OhAvalancheBankerJoeStrategy from '../abi/OhAvalancheBankerJoeStrategy.json';
 import OhCurveAPoolStrategy from '../abi/OhCurveAPoolStrategy.json';
+import OhAlphaHomoraV2Strategy from '../abi/OhAlphaHomoraV2Strategy.json';
 
 export const getInitializeAaveV2StrategyData = async (
   registry: string,
@@ -68,6 +69,21 @@ export const getInitializeCurveAPoolStrategyData = async (
   const initializeData = strategyInterface.encodeFunctionData(
     'initializeCurveAPoolStrategy(address,address,address,address,address,address,address,address,uint256)',
     [registry, bank, underlying, crvAToken, wavax, crv, crvAPool, crvAGauge, index]
+  );
+  return initializeData;
+};
+
+export const getInitializeAlphaHomoraV2StrategyData = async (
+  registry: string,
+  bank: string,
+  underlying: string,
+  derivative: string
+) => {
+  const {crUSDCeToken, wavax, alpha, usdcSafeBox} = await getNamedAccounts();
+  const strategyInterface = new ethers.utils.Interface(OhAlphaHomoraV2Strategy);
+  const initializeData = strategyInterface.encodeFunctionData(
+    'initializeAlphaHomoraV2Strategy(address,address,address,address,address,address,address,address)',
+    [registry, bank, underlying, derivative, wavax, crUSDCeToken, alpha, usdcSafeBox]
   );
   return initializeData;
 };
