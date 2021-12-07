@@ -28,7 +28,7 @@ describe('OhAvalancheAlphaHomoraV2Strategy', function () {
   });
 
   it('deployed and initialized Avalanche AlphaHomoraV2 USDC.e Strategy proxy correctly', async function () {
-    const {deployer, creamUSDCeToken, ibUSDCv2Token, alpha, usdce, wavax} =
+    const {deployer, crUSDCeToken, ibUSDCv2Token, alpha, usdce, wavax} =
       await getNamedAccounts();
     const bank = await getUsdceBankContract(deployer)
     const alphaHomoraV2Strategy = await getUsdceAlphaHomoraV2StrategyContract(deployer)
@@ -46,7 +46,7 @@ describe('OhAvalancheAlphaHomoraV2Strategy', function () {
     expect(derivative).eq(ibUSDCv2Token);
     expect(reward).eq(alpha);
     expect(secondaryReward).eq(wavax);
-    expect(creamUSDCe).eq(creamUSDCeToken);
+    expect(creamUSDCe).eq(crUSDCeToken);
   });
 
   it('finances and deposits into AlphaHomoraV2', async function () {
@@ -71,37 +71,41 @@ describe('OhAvalancheAlphaHomoraV2Strategy', function () {
     expect(strategyBalance).to.be.gt(0);
   });
 
-  it('liquidates rewards and compounds deposit', async function () {
-    const {worker} = await getNamedAccounts();
-    const manager = await getAvalancheManagerContract(worker)
-    const bank = await getUsdceBankContract(worker)
-    const alphaHomoraV2Strategy = await getUsdceAlphaHomoraV2StrategyContract(worker)
+  // it('liquidates rewards and compounds deposit', async function () {
+  //   const {worker} = await getNamedAccounts();
+  //   const manager = await getAvalancheManagerContract(worker)
+  //   const bank = await getUsdceBankContract(worker)
+  //   const alphaHomoraV2Strategy = await getUsdceAlphaHomoraV2StrategyContract(worker)
 
-    // wait 1 day to accrue rewards (time-based)
-    await advanceNSeconds(ONE_DAY);
-    await advanceNBlocks(1);
+  //   // wait 1 day to accrue rewards (time-based)
+  //   await advanceNSeconds(ONE_DAY);
+  //   await advanceNBlocks(1);
 
-    // finance to claim WAVAX and trigger liquidation
-    const balanceBefore = await alphaHomoraV2Strategy.investedBalance();
+  //   // finance to claim WAVAX and trigger liquidation
+  //   const balanceBefore = await alphaHomoraV2Strategy.investedBalance();
 
-    await finance(worker, manager.address, bank.address);
+  //   await finance(worker, manager.address, bank.address);
 
-    const balanceAfter = await alphaHomoraV2Strategy.investedBalance();
-    console.log('Liquidated ibUSDCev2Token for', formatUnits(balanceAfter.sub(balanceBefore), 6), 'USDC.e');
+  //   const balanceAfter = await alphaHomoraV2Strategy.investedBalance();
+  //   console.log('Liquidated ibUSDCev2Token for', formatUnits(balanceAfter.sub(balanceBefore), 6), 'USDC.e');
 
-    const strategyBalance = await bank.strategyBalance(0);
-    console.log('Strategy Balance: ' + formatUnits(strategyBalance.toString(), 6));
+  //   const strategyBalance = await bank.strategyBalance(0);
+  //   console.log('Strategy Balance: ' + formatUnits(strategyBalance.toString(), 6));
 
-    // expect liquidation was profitable
-    expect(balanceAfter).to.be.gt(balanceBefore);
-    expect(strategyBalance).to.be.gt(0);
-  });
+  //   // expect liquidation was profitable
+  //   expect(balanceAfter).to.be.gt(balanceBefore);
+  //   expect(strategyBalance).to.be.gt(0);
+  // });
 
   it('exits all and is profitable', async function () {
     const {deployer, worker} = await getNamedAccounts();
     const manager = await getAvalancheManagerContract(deployer)
     const bank = await getUsdceBankContract(worker)
     const alphaHomoraV2Strategy = await getUsdceAlphaHomoraV2StrategyContract(worker)
+
+    // wait 1 day to accrue rewards (time-based)
+    await advanceNSeconds(ONE_DAY);
+    await advanceNBlocks(1);
 
     // Withdraw all from the strategy to the bank
     await exit(deployer, manager.address, bank.address, alphaHomoraV2Strategy.address);
@@ -114,11 +118,12 @@ describe('OhAvalancheAlphaHomoraV2Strategy', function () {
     console.log('Virtual Price:', formatUnits(virtualPrice.toString(), 6));
 
     const shares = await bank.balanceOf(worker);
+    console.log("Shares: " + formatUnits(shares.toString(), 6));
     await withdraw(worker, bank.address, shares);
 
     const endingBalance = await usdceToken.balanceOf(worker);
-    expect(startingBalance).to.be.lt(endingBalance);
-
     console.log('Ending Balance: ' + formatUnits(endingBalance.toString(), 6));
+
+    expect(startingBalance).to.be.lt(endingBalance);
   });
 });

@@ -83,7 +83,7 @@ export const getInitializeAlphaHomoraV2StrategyData = async (
   const strategyInterface = new ethers.utils.Interface(OhAlphaHomoraV2Strategy);
   const initializeData = strategyInterface.encodeFunctionData(
     'initializeAlphaHomoraV2Strategy(address,address,address,address,address,address,address,address)',
-    [registry, bank, underlying, derivative, wavax, crUSDCeToken, alpha, usdcSafeBox]
+    [registry, bank, underlying, derivative, alpha, wavax, crUSDCeToken, usdcSafeBox]
   );
   return initializeData;
 };

@@ -5,6 +5,7 @@ pragma solidity 0.7.6;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
+import {Math} from "@openzeppelin/contracts/math/Math.sol";
 import {IStrategy} from "@ohfinance/oh-contracts/contracts/interfaces/strategies/IStrategy.sol";
 import {TransferHelper} from "@ohfinance/oh-contracts/contracts/libraries/TransferHelper.sol";
 import {OhStrategy} from "@ohfinance/oh-contracts/contracts/strategies/OhStrategy.sol";
@@ -42,18 +43,18 @@ contract OhAlphaHomoraV2Strategy is IStrategy, OhAlphaHomoraV2Helper, OhStrategy
         address underlying_,
         address derivative_,
         address reward_,
-        address creamUSDCToken_,
         address secondaryReward_,
+        address creamUSDCToken_,
         address safeBox_
     ) public initializer {
         initializeStrategy(registry_, bank_, underlying_, derivative_, reward_);
         initializeAlphaHomoraV2Storage(secondaryReward_, creamUSDCToken_, safeBox_);
 
-        IERC20(underlying_).safeApprove(underlying_, type(uint256).max);
+        IERC20(underlying_).safeApprove(derivative_, type(uint256).max);
     }
 
     /// @notice Get the balance of underlying invested by the Strategy
-    /// @dev Get the exchange rate (which is scaled up by 1e18) and multiply by amount of qiTokens
+    /// @dev Get the exchange rate (which is scaled up by 1e18) and multiply by amount of ibUSDCev2Token
     /// @return The amount of underlying the strategy has invested
     function investedBalance() public view override returns (uint256) {
         uint256 exchangeRate = getExchangeRate(creamUSDCeToken());
@@ -71,7 +72,7 @@ contract OhAlphaHomoraV2Strategy is IStrategy, OhAlphaHomoraV2Helper, OhStrategy
     }
 
     function invest() external override onlyBank {
-        //_compound(); TODO: uncomment when rewards are claimable December 22nd
+        //_compound();
         _deposit();
     }
 
@@ -92,19 +93,13 @@ contract OhAlphaHomoraV2Strategy is IStrategy, OhAlphaHomoraV2Helper, OhStrategy
 
     function _claimAll() internal {
         claim(safeBox(), derivativeBalance());
-
-        // // Claim and wrap AVAX
-        // claim(safeBox());
-        // wrap(secondaryReward(), address(this).balance);
-
-        //TODO: claim ALPHA
     }
 
     // deposit underlying tokens into Alpha Homora V2 USDC lending pool, minting ibUSDCv2
     function _deposit() internal {
         uint256 amount = underlyingBalance();
         if (amount > 0) {
-            deposit(underlying(), derivative(), amount);
+            deposit(derivative(), amount);
         }
     }
 

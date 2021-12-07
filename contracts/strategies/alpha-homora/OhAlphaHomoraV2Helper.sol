@@ -5,7 +5,6 @@ pragma solidity 0.7.6;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import {IWAVAX} from "../../interfaces/IWAVAX.sol"; 
-import {IibUSDCv2Token} from "./interfaces/IibUSDCv2Token.sol";
 import {IcrUSDCToken} from "./interfaces/IcrUSDCToken.sol";
 import {ISafeBox} from "./interfaces/ISafeBox.sol";
 
@@ -24,11 +23,9 @@ abstract contract OhAlphaHomoraV2Helper {
     }
 
     /// @notice Mint ibUSDCv2 tokens by providing/lending underlying as collateral
-    /// @param underlying The underlying to lend to Compound
     /// @param ibUSDCv2Token The ibUSDCv2 token
     /// @param amount The amount of underlying to lend
     function deposit(
-        address underlying,
         address ibUSDCv2Token,
         uint256 amount
     ) internal {
@@ -36,21 +33,7 @@ abstract contract OhAlphaHomoraV2Helper {
             return;
         }
         
-        IERC20(underlying).safeIncreaseAllowance(ibUSDCv2Token, amount);
-        uint256 result = ISafeBox(ibUSDCv2Token).deposit(amount);
-        require(result == 0, "Alpha Homora V2: Borrow failed");
-    }
-
-    /// @notice Redeem ibUSDCv2Token for underlying
-    /// @param ibUSDCv2Token The ibUSDCv2Token to redeem
-    /// @param amount The amount of ibUSDCv2Token to redeem
-    function redeem(address ibUSDCv2Token, uint256 amount) internal {
-        if (amount == 0) {
-            return;
-        }
-
-        uint256 result = IibUSDCv2Token(ibUSDCv2Token).redeem(amount);
-        require(result == 0, "Alpha Homora V2: Redeem ibUSDCv2");
+        ISafeBox(ibUSDCv2Token).deposit(amount);
     }
 
     /// @notice Redeem ibUSDCv2Token for underlying
@@ -61,15 +44,14 @@ abstract contract OhAlphaHomoraV2Helper {
             return;
         }
 
-        uint256 result = IibUSDCv2Token(ibUSDCv2Token).redeemUnderlying(amount);
-        require(result == 0, "Alpha Homora V2: Redeem underlying");
+        ISafeBox(ibUSDCv2Token).withdraw(amount);
     }
 
     /// @notice Claim rewards from SafeBox for this address
     /// @param safeBox The Alpha Homora SafeBox contract
     /// @param totalAmount Total Amount of underlying reward to claim
     function claim(address safeBox, uint totalAmount) internal {
-        bytes32[] memory proof = new bytes32[](10); // TODO: figure out how to calculate the proof
+        bytes32[] memory proof = new bytes32[](10);
         ISafeBox(safeBox).claim(totalAmount, proof);
     }
 
