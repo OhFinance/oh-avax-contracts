@@ -11,6 +11,7 @@ import {TransferHelper} from "@ohfinance/oh-contracts/contracts/libraries/Transf
 import {OhStrategy} from "@ohfinance/oh-contracts/contracts/strategies/OhStrategy.sol";
 import {OhAlphaHomoraV2Helper} from "./OhAlphaHomoraV2Helper.sol";
 import {OhAlphaHomoraV2StrategyStorage} from "./OhAlphaHomoraV2StrategyStorage.sol";
+import "hardhat/console.sol";
 
 /// @title Oh! Finance Benqi Strategy
 /// @notice Standard, unleveraged strategy. Invest underlying tokens into derivative cTokens
@@ -61,6 +62,11 @@ contract OhAlphaHomoraV2Strategy is IStrategy, OhAlphaHomoraV2Helper, OhStrategy
         return exchangeRate.mul(derivativeBalance()).div(1e18);
     }
 
+    function underlyingToDerivative(uint256 amount) internal view returns(uint256) {
+        uint256 exchangeRate = getExchangeRate(creamUSDCeToken());        
+        return amount.mul(1e18).div(exchangeRate);
+    }
+
     // Get the balance of extra rewards received by the Strategy
     function secondaryRewardBalance() public view returns (uint256) {
         address secondaryReward = secondaryReward();
@@ -77,7 +83,7 @@ contract OhAlphaHomoraV2Strategy is IStrategy, OhAlphaHomoraV2Helper, OhStrategy
     }
 
     function _compound() internal {
-        _claimAll();
+        //_claimAll();
 
         // TODO: Rewards are not claimable yet, they should be activated on december 22nd
         // uint256 amount = rewardBalance();
@@ -99,6 +105,7 @@ contract OhAlphaHomoraV2Strategy is IStrategy, OhAlphaHomoraV2Helper, OhStrategy
     function _deposit() internal {
         uint256 amount = underlyingBalance();
         if (amount > 0) {
+            console.log("depositing: %s", amount);
             deposit(derivative(), amount);
         }
     }
@@ -132,9 +139,9 @@ contract OhAlphaHomoraV2Strategy is IStrategy, OhAlphaHomoraV2Helper, OhStrategy
 
         // safely redeem from Alpha Homora V2
         if (redeemAmount > invested) {
-            redeemUnderlying(derivative(), invested);
+            redeemUnderlying(derivative(), underlyingToDerivative(invested));
         } else {
-            redeemUnderlying(derivative(), redeemAmount);
+            redeemUnderlying(derivative(), underlyingToDerivative(redeemAmount));
         }
 
         // withdraw to bank
