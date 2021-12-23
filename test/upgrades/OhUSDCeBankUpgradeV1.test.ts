@@ -22,40 +22,42 @@ describe('Oh! USDC.e Upgrade V1', function () {
     // strategic = (await ethers.getSigner(STRATEGIC_ADDRESS)).address;    
   })
 
-  it('removes Avalanche Aave V2 Strategy', async function () {
-    const {ohManager, ohUsdce, ohUsdceAaveV2Strategy, ohUsdceBankerJoeStrategy, ohUsdceBenqiStrategy} = await getNamedAccounts();
-    const bank = await getBankContract(deployer, ohUsdce);
+  // block 6980950
+  // it('removes Avalanche Aave V2 Strategy', async function () {
+  //   const {ohManager, ohUsdce, ohUsdceAaveV2Strategy, ohUsdceBankerJoeStrategy, ohUsdceBenqiStrategy} = await getNamedAccounts();
+  //   const bank = await getBankContract(deployer, ohUsdce);
 
-    const balanceBefore = await bank.virtualBalance();
+  //   const balanceBefore = await bank.virtualBalance();
 
-    await financeAll(deployer, ohManager, ohUsdce);
+  //   await financeAll(deployer, ohManager, ohUsdce);
 
-    await removeStrategy(deployer, ohManager, ohUsdce, ohUsdceAaveV2Strategy)
-    await removeStrategy(deployer, ohManager, ohUsdce, ohUsdceBankerJoeStrategy)
-    await removeStrategy(deployer, ohManager, ohUsdce, ohUsdceBenqiStrategy)
+  //   await removeStrategy(deployer, ohManager, ohUsdce, ohUsdceAaveV2Strategy)
+  //   await removeStrategy(deployer, ohManager, ohUsdce, ohUsdceBankerJoeStrategy)
+  //   await removeStrategy(deployer, ohManager, ohUsdce, ohUsdceBenqiStrategy)
 
-    const totalStrategies = await bank.totalStrategies();
-    const balance = await bank.virtualBalance();
+  //   const totalStrategies = await bank.totalStrategies();
+  //   const balance = await bank.virtualBalance();
 
-    expect(totalStrategies.toNumber()).eq(0);
-    expect(balance).gt(balanceBefore);
-  })
+  //   expect(totalStrategies.toNumber()).eq(0);
+  //   expect(balance).gt(balanceBefore);
+  // })
 
-  it('adds Avalanche Curve APool Strategy', async function () {
-    const {ohManager, ohUsdce} = await getNamedAccounts();
-    const bank = await getBankContract(deployer, ohUsdce);
-    const bankerJoeStrategy = await getUsdceBankerJoeStrategyContract(deployer);
-    const benqiStrategy = await getUsdceBenqiStrategyContract(deployer);
-    const crvStrategy = await getUsdceCurveAPoolStrategyContract(deployer);
+  // block 6980950
+  // it('adds Avalanche Curve APool Strategy', async function () {
+  //   const {ohManager, ohUsdce} = await getNamedAccounts();
+  //   const bank = await getBankContract(deployer, ohUsdce);
+  //   const bankerJoeStrategy = await getUsdceBankerJoeStrategyContract(deployer);
+  //   const benqiStrategy = await getUsdceBenqiStrategyContract(deployer);
+  //   const crvStrategy = await getUsdceCurveAPoolStrategyContract(deployer);
 
-    await addStrategy(deployer, ohManager, ohUsdce, bankerJoeStrategy.address);
-    await addStrategy(deployer, ohManager, ohUsdce, benqiStrategy.address)
-    await addStrategy(deployer, ohManager, ohUsdce, crvStrategy.address)
+  //   await addStrategy(deployer, ohManager, ohUsdce, bankerJoeStrategy.address);
+  //   await addStrategy(deployer, ohManager, ohUsdce, benqiStrategy.address)
+  //   await addStrategy(deployer, ohManager, ohUsdce, crvStrategy.address)
 
-    const totalStrategies = await bank.totalStrategies();
+  //   const totalStrategies = await bank.totalStrategies();
 
-    expect(totalStrategies.toNumber()).eq(3);
-  })
+  //   expect(totalStrategies.toNumber()).eq(3);
+  // })
 
   // it('allows users to deposit and allows investing after updates', async function () {
   //   const {worker, ohUsdce, ohManager} = await getNamedAccounts()
