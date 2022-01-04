@@ -52,12 +52,29 @@ export const getUsdceBankProxyContract = async (signer: string, at?: string) => 
   return await getUpgradeableProxy(signer, 'OhUsdceBank');
 };
 
+export const getMimBankProxyContract = async (signer: string, at?: string) => {
+  if (at) {
+    return await getUpgradeableProxy(signer, 'OhMimBank', at)
+  }
+  return await getUpgradeableProxy(signer, 'OhMimBank');
+};
+
 export const getUsdceBankContract = async (signer:string, at?: string) => {
   if (at) {
     const proxy = await getUsdceBankProxyContract(signer, at);
     return await getBankContract(signer, proxy.address);
   } else {
     const proxy = await getUsdceBankProxyContract(signer);
+    return await getBankContract(signer, proxy.address);
+  } 
+}
+
+export const getMimBankContract = async (signer:string, at?: string) => {
+  if (at) {
+    const proxy = await getMimBankProxyContract(signer, at);
+    return await getBankContract(signer, proxy.address);
+  } else {
+    const proxy = await getMimBankProxyContract(signer);
     return await getBankContract(signer, proxy.address);
   } 
 }

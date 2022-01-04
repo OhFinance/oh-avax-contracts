@@ -1,6 +1,6 @@
 import { parseEther } from '@ethersproject/units';
 import {deployments} from 'hardhat';
-import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdceBankerJoeStrategyContract,
+import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getMimBankContract, getUsdceBankerJoeStrategyContract,
   getUsdceBenqiStrategyContract, getUsdceCurveAPoolStrategyContract, getUsdceAlphaHomoraV2StrategyContract } from '../lib/contract';
 import { swapAvaxForTokens } from './swap';
 import { updateBank, updateLiquidator, updateManager } from './tasks';
@@ -52,4 +52,16 @@ export const setupUsdceBankTest  = deployments.createFixture(async ({deployments
 
   // buy USDC.e for worker
   await swapAvaxForTokens(worker, usdce, parseEther('1000'));
+});
+
+export const setupMimBankTest  = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
+  await deployments.fixture(["OhMimBank"])
+  await updateManager();
+  await updateLiquidator();
+
+  const {deployer, worker, mim} = await getNamedAccounts()
+  const bank = await getMimBankContract(deployer)
+
+  // buy MIM for worker
+  await swapAvaxForTokens(worker, mim, parseEther('1000'));
 });

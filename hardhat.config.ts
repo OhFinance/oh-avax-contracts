@@ -106,6 +106,9 @@ const config: HardhatUserConfig = {
     joeUsdce: {
       43114: '0xEd6AaF91a2B084bd594DBd1245be3691F9f637aC', // Banker Joe USD coin
     },
+    mim: {
+      43114: '0x130966628846bfd36ff31a822705796e8cb8c18d',
+    },
     usdce: {
       43114: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664', // USDC.e
     },
