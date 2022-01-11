@@ -1,7 +1,8 @@
 import { parseEther } from '@ethersproject/units';
 import {deployments} from 'hardhat';
+
 import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getMimBankContract, getUsdceBankerJoeStrategyContract,
-  getUsdceBenqiStrategyContract, getUsdceCurveAPoolStrategyContract, getUsdceAlphaHomoraV2StrategyContract } from '../lib/contract';
+  getUsdceBenqiStrategyContract, getUsdceCurveAPoolStrategyContract, getUsdceAlphaHomoraV2StrategyContract, getUsdteBankContract, getDaieBankContract, getUsdteCurveAPoolStrategyProxyContract, getDaieCurveAPoolStrategyProxyContract } from '../lib/contract';
 import { swapAvaxForTokens } from './swap';
 import { updateBank, updateLiquidator, updateManager } from './tasks';
 
@@ -64,4 +65,36 @@ export const setupMimBankTest  = deployments.createFixture(async ({deployments, 
 
   // buy MIM for worker
   await swapAvaxForTokens(worker, mim, parseEther('1000'));
+});
+
+export const setupUsdteBankTest  = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
+  await deployments.fixture(["OhUsdteBank", "OhUsdteCurveAPoolStrategy"])
+  await updateManager();
+  await updateLiquidator();
+
+  const {deployer, worker, usdte} = await getNamedAccounts()
+  const bank = await getUsdteBankContract(deployer)
+  const curveStrategy = await getUsdteCurveAPoolStrategyProxyContract(deployer)
+
+  // Add Bank and Strategies to Manager
+  await updateBank(bank.address, [curveStrategy.address])
+
+  // buy USDT.e for worker
+  await swapAvaxForTokens(worker, usdte, parseEther('1000'));
+});
+
+export const setupDaieBankTest  = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
+  await deployments.fixture(["OhDaieBank", "OhDaieCurveAPoolStrategy"])
+  await updateManager();
+  await updateLiquidator();
+
+  const {deployer, worker, daie} = await getNamedAccounts()
+  const bank = await getDaieBankContract(deployer)
+  const curveStrategy = await getDaieCurveAPoolStrategyProxyContract(deployer)
+
+  // Add Bank and Strategies to Manager
+  await updateBank(bank.address, [curveStrategy.address])
+
+  // buy DAI.e for worker
+  await swapAvaxForTokens(worker, daie, parseEther('1000'));
 });

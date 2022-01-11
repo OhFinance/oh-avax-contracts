@@ -79,6 +79,40 @@ export const getMimBankContract = async (signer:string, at?: string) => {
   } 
 }
 
+export const getUsdteBankProxyContract = async (signer: string, at?: string) => {
+  if (at) {
+    return await getUpgradeableProxy(signer, 'OhUsdteBank', at)
+  }
+  return await getUpgradeableProxy(signer, 'OhUsdteBank');
+};
+
+export const getUsdteBankContract = async (signer:string, at?: string) => {
+  if (at) {
+    const proxy = await getUsdteBankProxyContract(signer, at);
+    return await getBankContract(signer, proxy.address);
+  } else {
+    const proxy = await getUsdteBankProxyContract(signer);
+    return await getBankContract(signer, proxy.address);
+  } 
+}
+
+export const getDaieBankProxyContract = async (signer: string, at?: string) => {
+  if (at) {
+    return await getUpgradeableProxy(signer, 'OhDaieBank', at)
+  }
+  return await getUpgradeableProxy(signer, 'OhDaieBank');
+};
+
+export const getDaieBankContract = async (signer:string, at?: string) => {
+  if (at) {
+    const proxy = await getDaieBankProxyContract(signer, at);
+    return await getBankContract(signer, proxy.address);
+  } else {
+    const proxy = await getDaieBankProxyContract(signer);
+    return await getBankContract(signer, proxy.address);
+  } 
+}
+
 export const getUsdceAaveV2StrategyProxyContract = async (signer: string) => {
   return await getUpgradeableProxy(signer, 'OhUsdceAaveV2Strategy');
 };
@@ -108,6 +142,14 @@ export const getUsdceBankerJoeStrategyContract = async (signer:string) => {
 
 export const getUsdceCurveAPoolStrategyProxyContract = async (signer: string) => {
   return await getUpgradeableProxy(signer, 'OhUsdceCurveAPoolStrategy');
+};
+
+export const getUsdteCurveAPoolStrategyProxyContract = async (signer: string) => {
+  return await getUpgradeableProxy(signer, 'OhUsdteCurveAPoolStrategy');
+};
+
+export const getDaieCurveAPoolStrategyProxyContract = async (signer: string) => {
+  return await getUpgradeableProxy(signer, 'OhDaieCurveAPoolStrategy');
 };
 
 export const getUsdceCurveAPoolStrategyContract = async (signer:string) => {
