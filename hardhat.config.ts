@@ -106,13 +106,11 @@ const config: HardhatUserConfig = {
     joeUsdce: {
       43114: '0xEd6AaF91a2B084bd594DBd1245be3691F9f637aC', // Banker Joe USD coin
     },
-<<<<<<< HEAD
     mim: {
       43114: '0x130966628846bfd36ff31a822705796e8cb8c18d',
-=======
+    },
     daie: {
       43114: '0xd586E7F844cEa2F87f50152665BCbc2C279D8d70', // DAI.e
->>>>>>> 8c24920 (Add OH-DAI.e and OH-USDT.e scripts and tests)
     },
     usdce: {
       43114: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664', // USDC.e
