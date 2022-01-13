@@ -112,8 +112,14 @@ const config: HardhatUserConfig = {
     mim: {
       43114: '0x130966628846bfd36ff31a822705796e8cb8c18d',
     },
+    daie: {
+      43114: '0xd586E7F844cEa2F87f50152665BCbc2C279D8d70', // DAI.e
+    },
     usdce: {
       43114: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664', // USDC.e
+    },
+    usdte: {
+      43114: '0xc7198437980c041c805A1EDcbA50c1Ce5db95118', // USDT.e
     },
     wavax: {
       43114: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',

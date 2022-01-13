@@ -10,12 +10,13 @@ export const updateManager = async () => {
   await setManager(deployer, registry.address, manager.address);
 }
 
-export const updateLiquidator = async () => {
-  const {deployer, joeRouter, token, usdce, wavax, benqi, joe, crv, alpha, mim} = await getNamedAccounts()
+// Add swap routes for buybacks and rewards to Liquidator, then add to Manager
+export const updateLiquidator = async () => {0
+  const {deployer, joeRouter, token, usdce, wavax, benqi, joe, crv, alpha, mim, daie, usdte} = await getNamedAccounts()
   const manager = await getAvalancheManagerContract(deployer)
   const liquidator = await getLiquidatorContract(deployer)
 
-  // Add swap routes for buybacks and rewards to Liquidator, then add to Manager
+  // USDC.e
 
   // buyback [usdc.e => wavax => oh]
   await setSwapRoutes(deployer, liquidator.address, joeRouter, usdce, token, [usdce, wavax, token])
@@ -48,6 +49,34 @@ export const updateLiquidator = async () => {
   // rewards [alpha => wavax => usdc.e] 
   // await setSwapRoutes(deployer, liquidator.address, joeRouter, alpha, usdce, [alpha, wavax, usdce])
   // await setLiquidator(deployer, manager.address, liquidator.address, alpha, usdce)
+
+  // USDT.e
+
+  // buyback [usdt.e => wavax => oh]
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, usdte, token, [usdte, wavax, token])
+  await setLiquidator(deployer, manager.address, liquidator.address, usdte, token)
+
+  // rewards [wavax => usdt.e] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, wavax, usdte, [wavax, usdte])
+  await setLiquidator(deployer, manager.address, liquidator.address, wavax, usdte)
+
+  // rewards [crv => wavax => usdt.e] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, crv, usdte, [crv, wavax, usdte])
+  await setLiquidator(deployer, manager.address, liquidator.address, crv, usdte)
+
+  // DAI.e
+
+  // buyback [dai.e => wavax => oh]
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, daie, token, [daie, wavax, token])
+  await setLiquidator(deployer, manager.address, liquidator.address, daie, token)
+
+  // rewards [wavax => dai.e] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, wavax, daie, [wavax, daie])
+  await setLiquidator(deployer, manager.address, liquidator.address, wavax, daie)
+
+  // rewards [crv => wavax => usdc.e] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, crv, daie, [crv, wavax, daie])
+  await setLiquidator(deployer, manager.address, liquidator.address, crv, daie)
 }
 
 export const updateBank = async (bank: string, strategies: string[]) => {
