@@ -9,6 +9,8 @@ import {IJToken} from "./interfaces/IJToken.sol";
 import {IJoetroller} from "./interfaces/IJoetroller.sol";
 import {IJAvax} from "./interfaces/IJAvax.sol";
 
+import "hardhat/console.sol";
+
 /// @title Oh! Finance BankerJoe Helper
 /// @notice Helper functions to interact with the BankerJoe Protocol
 /// @dev https://docs.traderjoexyz.com/
@@ -57,7 +59,7 @@ abstract contract OhAvalancheBankerJoeHelper {
         if (amount == 0) {
             return;
         }
-
+        console.log("Borrowing %s from BankerJoe", amount);
         uint256 result = IJToken(jToken).borrow(amount);
         require(result == 0, "BankerJoe: Borrow failed");
     }
@@ -137,5 +139,20 @@ abstract contract OhAvalancheBankerJoeHelper {
             return;
         }
         IWAVAX(wavax).deposit{value: amount}();
+    }
+
+    // Returns the cash balance of this jToken in the underlying asset
+    function getCash(address jToken) internal view returns (uint256) {
+        return IJToken(jToken).getCash();
+    }
+
+    // Returns the owner's jToken balance
+    function balanceOfUnderlying(address jToken, address owner) internal returns (uint256) {
+        return IJToken(jToken).balanceOfUnderlying(owner);
+    }
+
+    // Returns the owner's borrow balance
+    function borrowBalanceCurrent(address jToken, address owner) internal returns (uint256) {
+        return IJToken(jToken).borrowBalanceCurrent(owner);
     }
 }

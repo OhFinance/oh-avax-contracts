@@ -1,7 +1,8 @@
 import { parseEther } from '@ethersproject/units';
 import {deployments} from 'hardhat';
 import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getMimBankContract, getUsdceBankerJoeStrategyContract,
-  getUsdceBenqiStrategyContract, getUsdceCurveAPoolStrategyContract, getUsdceAlphaHomoraV2StrategyContract } from '../lib/contract';
+  getUsdceBenqiStrategyContract, getUsdceCurveAPoolStrategyContract, getUsdceAlphaHomoraV2StrategyContract,
+  getMimBankerJoeFoldingStrategyContract } from '../lib/contract';
 import { swapAvaxForTokens } from './swap';
 import { updateBank, updateLiquidator, updateManager } from './tasks';
 
@@ -59,8 +60,23 @@ export const setupMimBankTest  = deployments.createFixture(async ({deployments, 
   await updateManager();
   await updateLiquidator();
 
+  const {worker, mim} = await getNamedAccounts()
+
+  // buy MIM for worker
+  await swapAvaxForTokens(worker, mim, parseEther('1000'));
+});
+
+export const setupMimBankWithStratsTest = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
+  await deployments.fixture(["OhMimBank", "OhMimBankerJoeFoldingStrategy"])
+  await updateManager();
+  await updateLiquidator();
+
   const {deployer, worker, mim} = await getNamedAccounts()
   const bank = await getMimBankContract(deployer)
+  const bankerJoeFoldingStrategy = await getMimBankerJoeFoldingStrategyContract(deployer)
+
+  // Add Bank and Strategies to Manager
+  await updateBank(bank.address, [bankerJoeFoldingStrategy.address])
 
   // buy MIM for worker
   await swapAvaxForTokens(worker, mim, parseEther('1000'));

@@ -16,4 +16,10 @@ interface IJToken {
     function repayBorrow(uint256 repayAmount) external returns (uint256);
 
     function exchangeRateStored() external view returns (uint256);
+
+    function getCash() external view returns (uint256);
+
+    function balanceOfUnderlying(address owner) external returns (uint256);
+
+    function borrowBalanceCurrent(address account) external returns (uint256);
 }

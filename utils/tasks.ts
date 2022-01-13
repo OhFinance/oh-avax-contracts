@@ -11,7 +11,7 @@ export const updateManager = async () => {
 }
 
 export const updateLiquidator = async () => {
-  const {deployer, joeRouter, token, usdce, wavax, benqi, joe, crv, alpha} = await getNamedAccounts()
+  const {deployer, joeRouter, token, usdce, wavax, benqi, joe, crv, alpha, mim} = await getNamedAccounts()
   const manager = await getAvalancheManagerContract(deployer)
   const liquidator = await getLiquidatorContract(deployer)
 
@@ -25,9 +25,17 @@ export const updateLiquidator = async () => {
   await setSwapRoutes(deployer, liquidator.address, joeRouter, wavax, usdce, [wavax, usdce])
   await setLiquidator(deployer, manager.address, liquidator.address, wavax, usdce)
 
+  // rewards [wavax => mim] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, wavax, mim, [wavax, mim])
+  await setLiquidator(deployer, manager.address, liquidator.address, wavax, mim)
+
   // rewards [joe => wavax => usdc.e] 
   await setSwapRoutes(deployer, liquidator.address, joeRouter, joe, usdce, [joe, wavax, usdce])
   await setLiquidator(deployer, manager.address, liquidator.address, joe, usdce)
+
+  // rewards [joe => wavax => mim] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, joe, mim, [joe, wavax, mim])
+  await setLiquidator(deployer, manager.address, liquidator.address, joe, mim)
 
   // rewards [qi => wavax => usdc.e] 
   await setSwapRoutes(deployer, liquidator.address, joeRouter, benqi, usdce, [benqi, wavax, usdce])

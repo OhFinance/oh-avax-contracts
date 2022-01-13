@@ -1,7 +1,7 @@
 import { getBankContract, getUpgradeableProxy, getUpgradeableProxyAt } from "@ohfinance/oh-contracts/lib";
 import { ethers } from "hardhat";
 import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy,
-  OhCurveAPoolStrategy, OhAlphaHomoraV2Strategy, OhAvalancheManager } from "types";
+  OhAvalancheBankerJoeFoldingStrategy, OhCurveAPoolStrategy, OhAlphaHomoraV2Strategy, OhAvalancheManager } from "types";
 
 export const getAvalancheManagerContract = async (signer: string, at?: string) => {
   if (at) {
@@ -29,6 +29,13 @@ export const getAvalancheBankerJoeStrategyContract = async (signer: string, at?:
     return (await ethers.getContractAt('OhAvalancheBankerJoeStrategy', at, signer)) as OhAvalancheBankerJoeStrategy;
   }
   return (await ethers.getContract('OhAvalancheBankerJoeStrategy', signer)) as OhAvalancheBankerJoeStrategy;
+};
+
+export const getAvalancheBankerJoeFoldingStrategyContract = async (signer: string, at?: string) => {
+  if (at) {
+    return (await ethers.getContractAt('OhAvalancheBankerJoeFoldingStrategy', at, signer)) as OhAvalancheBankerJoeFoldingStrategy;
+  }
+  return (await ethers.getContract('OhAvalancheBankerJoeFoldingStrategy', signer)) as OhAvalancheBankerJoeFoldingStrategy;
 };
 
 export const getCurveAPoolStrategyContract = async (signer: string, at?: string) => {
@@ -79,6 +86,9 @@ export const getMimBankContract = async (signer:string, at?: string) => {
   } 
 }
 
+//
+// USDCE 
+//
 export const getUsdceAaveV2StrategyProxyContract = async (signer: string) => {
   return await getUpgradeableProxy(signer, 'OhUsdceAaveV2Strategy');
 };
@@ -122,4 +132,16 @@ export const getUsdceAlphaHomoraV2StrategyProxyContract = async (signer: string)
 export const getUsdceAlphaHomoraV2StrategyContract = async (signer:string) => {
   const proxy = await getUsdceAlphaHomoraV2StrategyProxyContract(signer);
   return await getAlphaHomoraV2StrategyContract(signer, proxy.address);
+}
+
+//
+// MIM
+//
+export const getMimBankerJoeFoldingStrategyProxyContract = async (signer: string) => {
+  return await getUpgradeableProxy(signer, 'OhMimBankerJoeFoldingStrategy');
+};
+
+export const getMimBankerJoeFoldingStrategyContract = async (signer:string) => {
+  const proxy = await getMimBankerJoeFoldingStrategyProxyContract(signer);
+  return await getAvalancheBankerJoeFoldingStrategyContract(signer, proxy.address);
 }

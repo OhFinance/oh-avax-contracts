@@ -2,6 +2,7 @@ import { ethers, getNamedAccounts } from "hardhat";
 import OhAvalancheAaveV2Strategy from '../abi/OhAvalancheAaveV2Strategy.json';
 import OhAvalancheBenqiStrategy from '../abi/OhAvalancheBenqiStrategy.json'
 import OhAvalancheBankerJoeStrategy from '../abi/OhAvalancheBankerJoeStrategy.json';
+import OhAvalancheBankerJoeFoldingStrategy from '../abi/OhAvalancheBankerJoeFoldingStrategy.json';
 import OhCurveAPoolStrategy from '../abi/OhCurveAPoolStrategy.json';
 import OhAlphaHomoraV2Strategy from '../abi/OhAlphaHomoraV2Strategy.json';
 
@@ -54,6 +55,25 @@ export const getInitializeBankerJoeStrategyData = async (
   const initializeData = strategyInterface.encodeFunctionData(
     'initializeBankerJoeStrategy(address,address,address,address,address,address,address)',
     [registry, bank, underlying, derivative, joe, wavax, joetroller]
+  );
+  return initializeData;
+};
+
+export const getInitializeBankerJoeFoldingStrategyData = async (
+  registry: string,
+  bank: string,
+  underlying: string,
+  derivative: string
+) => {
+  const {joe, joetroller, wavax} = await getNamedAccounts();
+  const strategyInterface = new ethers.utils.Interface(OhAvalancheBankerJoeFoldingStrategy);
+  const bjMimFoldingAmount = 5; // Number of time we fold for borrowing/lending
+  const bjMimCFNumerator = 500; // Collateral factor expressed as x/1000
+  const bjMimCFDenominator = 1000;
+  const initializeData = strategyInterface.encodeFunctionData(
+    'initializeBankerJoeFoldingStrategy(address,address,address,address,address,address,address,uint256,uint256,uint256)',
+    [registry, bank, underlying, derivative, joe, wavax, joetroller,
+      bjMimFoldingAmount,bjMimCFNumerator,bjMimCFDenominator]
   );
   return initializeData;
 };

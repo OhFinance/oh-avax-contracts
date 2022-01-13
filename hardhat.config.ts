@@ -106,6 +106,9 @@ const config: HardhatUserConfig = {
     joeUsdce: {
       43114: '0xEd6AaF91a2B084bd594DBd1245be3691F9f637aC', // Banker Joe USD coin
     },
+    joeMim: {
+      43114: '0xce095a9657a02025081e0607c8d8b081c76a75ea', // Banker Joe MIM coin
+    },
     mim: {
       43114: '0x130966628846bfd36ff31a822705796e8cb8c18d',
     },
@@ -132,7 +135,7 @@ const config: HardhatUserConfig = {
       live: false,
       forking: {
         url: process.env.AVALANCHE_RPC_URL ?? 'https://api.avax.network/ext/bc/C/rpc',
-        blockNumber: 8568000
+        blockNumber: 	9506708
       }
     },
     fuji: {
