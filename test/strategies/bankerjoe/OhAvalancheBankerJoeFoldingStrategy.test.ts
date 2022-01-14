@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {formatUnits} from '@ethersproject/units';
 import { getNamedAccounts} from 'hardhat';
 import { approve, deposit, finance, withdraw, getERC20Contract, getManagerContract, exit } from '@ohfinance/oh-contracts/lib';
-import { advanceNBlocks, advanceNSeconds, ONE_DAY, FIFTEEN_DAYS } from '@ohfinance/oh-contracts/utils';
+import { advanceNBlocks, advanceNSeconds, ONE_DAY } from '@ohfinance/oh-contracts/utils';
 import { getAvalancheManagerContract, getMimBankContract, getMimBankerJoeFoldingStrategyContract } from 'lib/contract';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
@@ -72,8 +72,7 @@ describe('OhAvalancheBankerJoeFoldingStrategy with MIM', function () {
     const bankerJoeFoldingStrategy = await getMimBankerJoeFoldingStrategyContract(worker)
 
     // wait 1 day to accrue rewards (time-based)
-    await advanceNSeconds(FIFTEEN_DAYS);
-    await advanceNSeconds(FIFTEEN_DAYS);
+    await advanceNSeconds(ONE_DAY);
     await advanceNBlocks(1);
 
     // finance to claim WAVAX and trigger liquidation

@@ -13,9 +13,6 @@ import {OhAvalancheBankerJoeHelper} from "./OhAvalancheBankerJoeHelper.sol";
 import {OhAvalancheBankerJoeFoldingStrategyStorage} from "./OhAvalancheBankerJoeFoldingStrategyStorage.sol";
 import {IJToken} from "./interfaces/IJToken.sol";
 
-import "hardhat/console.sol";
-
-
 /// @title Oh! Finance Banker Joe Strategy
 /// @notice Standard, unleveraged strategy. Invest underlying tokens into derivative JTokens
 /// @dev https://docs.traderjoexyz.com/
@@ -107,7 +104,7 @@ contract OhAvalancheBankerJoeFoldingStrategy is IStrategy, OhAvalancheBankerJoeH
     // deposit underlying tokens into BankerJoe as collateral and borrow against it, minting JTokens
     function _deposit() internal {
         uint256 balance = underlyingBalance();
-        console.log("Balance before borrowing: %s", balance);
+
         if (balance > 0) {
             mint(underlying(), derivative(), balance);
 
@@ -142,10 +139,9 @@ contract OhAvalancheBankerJoeFoldingStrategy is IStrategy, OhAvalancheBankerJoeH
         if (amount == 0) {
             return 0;
         }
-        console.log("Amount to withdraw: %s", amount);
+
         uint256 invested = investedBalance();
-        console.log("Amount INvested: %s", invested);
-        console.log("balance of underlying:\n %s", balanceOfUnderlying(derivative(), address(this)));
+
         if (invested == 0) {
             return 0;
         }
@@ -154,15 +150,15 @@ contract OhAvalancheBankerJoeFoldingStrategy is IStrategy, OhAvalancheBankerJoeH
         _claimAll();
 
         // calculate amount to redeem by supply ownership
+        uint256 withdrawn;
         uint256 supplyShare = amount.mul(1e18).div(invested);
         uint256 redeemAmount = supplyShare.mul(invested).div(1e18);
 
-        uint256 withdrawn;
         if (redeemAmount <= underlyingBalance()) {
             withdrawn = TransferHelper.safeTokenTransfer(recipient, underlying(), amount);
             return withdrawn;
         }
-        console.log("Redeem Amount: %s", redeemAmount);
+
         // safely redeem from BankerJoe
         if (redeemAmount > invested) {
             mustRedeemPartial(invested);
@@ -191,8 +187,6 @@ contract OhAvalancheBankerJoeFoldingStrategy is IStrategy, OhAvalancheBankerJoeH
             "market cash cannot cover liquidity"
         );
         redeemMaximumUnderlyingWithLoan();
-        console.log("underlying balance:\n %s", underlyingBalance());
-        console.log("withdraw amount:\n %s", amountUnderlying);
         require(underlyingBalance() >= amountUnderlying, "Unable to withdraw the entire amountUnderlying");
     }
 
@@ -204,23 +198,17 @@ contract OhAvalancheBankerJoeFoldingStrategy is IStrategy, OhAvalancheBankerJoeH
         // amount of MIM we borrowed
         uint256 borrowed = borrowBalanceCurrent(derivative(), address(this));
 
-        while (borrowed > 0) {
-            console.log("Borrowed\n: %s", borrowed);
-            console.log("Supplied\n: %s", supplied);
+        while (borrowed > 1e18) {
             uint256 requiredCollateral = borrowed
                 .mul(collateralFactorDenominator())
                 .add(collateralFactorNumerator().div(2))           
                 .div(collateralFactorNumerator());
-            console.log("RequiredCollateral\n: %s", requiredCollateral);
+
             // redeem just as much as needed to repay the loan
             uint256 wantToRedeem = supplied.sub(requiredCollateral);
-            console.log("WantToRedeem\n: %s", wantToRedeem);
-            console.log("Available\n: %s", available);
             redeemUnderlying(derivative(), Math.min(wantToRedeem, available));
-
             // now we can repay our borrowed amount
             uint256 balance = underlyingBalance();
-            console.log("Balance\n: %s", balance);
             repay(underlying(), derivative(), Math.min(borrowed, balance));
 
             // update the parameters
@@ -230,11 +218,7 @@ contract OhAvalancheBankerJoeFoldingStrategy is IStrategy, OhAvalancheBankerJoeH
         }
 
         // redeem the most we can redeem
-        console.log("Borrowed after loop:\n %s", borrowed);
-        console.log("Supplied after loop:\n %s", supplied);
-        console.log("Available after loop:\n %s", available);
         redeemUnderlying(derivative(), Math.min(available, supplied));
-        console.log("Strategy balance: %s", underlyingBalance());
     }
 
     function updateSupply() internal {

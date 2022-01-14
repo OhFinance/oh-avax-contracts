@@ -9,8 +9,6 @@ import {IJToken} from "./interfaces/IJToken.sol";
 import {IJoetroller} from "./interfaces/IJoetroller.sol";
 import {IJAvax} from "./interfaces/IJAvax.sol";
 
-import "hardhat/console.sol";
-
 /// @title Oh! Finance BankerJoe Helper
 /// @notice Helper functions to interact with the BankerJoe Protocol
 /// @dev https://docs.traderjoexyz.com/
@@ -56,10 +54,10 @@ abstract contract OhAvalancheBankerJoeHelper {
     /// @param jToken The jToken corresponding the underlying we want to borrow
     /// @param amount The amount of underlying to borrow
     function borrow(address jToken, uint256 amount) internal {
-        if (amount == 0) {
+        if (amount < 1e18) {
             return;
         }
-        console.log("Borrowing %s from BankerJoe", amount);
+
         uint256 result = IJToken(jToken).borrow(amount);
         require(result == 0, "BankerJoe: Borrow failed");
     }
