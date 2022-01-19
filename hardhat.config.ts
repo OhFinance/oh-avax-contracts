@@ -153,7 +153,7 @@ const config: HardhatUserConfig = {
       chainId: 43114,
       url: 'https://api.avax.network/ext/bc/C/rpc',
       accounts: process.env.DEPLOYER_KEY ? [`0x${process.env.DEPLOYER_KEY}`] : [],
-      gasPrice: 120000000000,
+      gasPrice: 40000000000,
     }
   }
 }
