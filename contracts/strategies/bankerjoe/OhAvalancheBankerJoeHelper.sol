@@ -9,8 +9,6 @@ import {IJToken} from "./interfaces/IJToken.sol";
 import {IJoetroller} from "./interfaces/IJoetroller.sol";
 import {IJAvax} from "./interfaces/IJAvax.sol";
 
-import "hardhat/console.sol";
-
 /// @title Oh! Finance BankerJoe Helper
 /// @notice Helper functions to interact with the BankerJoe Protocol
 /// @dev https://docs.traderjoexyz.com/
@@ -46,7 +44,7 @@ abstract contract OhAvalancheBankerJoeHelper {
         if (amount == 0) {
             return;
         }
-        
+
         IERC20(underlying).safeIncreaseAllowance(jToken, amount);
         uint256 result = IJToken(jToken).mint(amount);
         require(result == 0, "BankerJoe: Borrow failed");
@@ -101,7 +99,7 @@ abstract contract OhAvalancheBankerJoeHelper {
         if (amount == 0) {
             return;
         }
-        console.log("Amount redeemed: %s", amount);
+
         uint256 result = IJToken(jToken).redeemUnderlying(amount);
         require(result == 0, "BankerJoe: Redeem underlying");
     }

@@ -6,7 +6,6 @@ import { advanceNBlocks, advanceNSeconds, ONE_DAY } from '@ohfinance/oh-contract
 import { getAvalancheManagerContract, getMimBankContract, getMimBankerJoeFoldingStrategyContract } from 'lib/contract';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
-import { updateBank } from 'utils/tasks';
 import { setupMimBankWithStratsTest } from 'utils/fixture';
 
 describe('OhAvalancheBankerJoeFoldingStrategy with MIM', function () {
@@ -100,7 +99,6 @@ describe('OhAvalancheBankerJoeFoldingStrategy with MIM', function () {
     const shares = await (await bank.balanceOf(worker));
     const halfShares = shares.div(2);
     console.log("Shares of worker: " + formatUnits(halfShares.toString(), 18));
-    console.log("Shares unformatted: " + halfShares.toString());
 
     // Check that underlying balance for the user is now greater than when the test started
     const virtualBalance = await bank.virtualBalance();
