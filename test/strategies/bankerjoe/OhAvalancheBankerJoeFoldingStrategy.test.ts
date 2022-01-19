@@ -32,14 +32,14 @@ describe('OhAvalancheBankerJoeFoldingStrategy with MIM', function () {
     const underlying = await bankerJoeFoldingStrategy.underlying();
     const derivative = await bankerJoeFoldingStrategy.derivative();
     const reward = await bankerJoeFoldingStrategy.reward();
-    const secondaryReward = await bankerJoeFoldingStrategy.secondaryReward();
+    //const secondaryReward = await bankerJoeFoldingStrategy.secondaryReward();
     const bankerJoeTroller = await bankerJoeFoldingStrategy.joetroller();
 
     expect(bankerJoeFoldingStrategyBank).eq(bank.address);
     expect(underlying).eq(mim);
     expect(derivative).eq(joeMim);
     expect(reward).eq(joe);
-    expect(secondaryReward).eq(wavax);
+    //expect(secondaryReward).eq(wavax);
     expect(bankerJoeTroller).eq(joetroller);
   });
 

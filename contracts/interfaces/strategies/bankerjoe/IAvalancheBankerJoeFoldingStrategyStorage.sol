@@ -3,8 +3,6 @@
 pragma solidity 0.7.6;
 
 interface IAvalancheBankerJoeFoldingStrategyStorage {
-    function secondaryReward() external view returns (address);
-
     function joetroller() external view returns (address);
 
     function folds() external view returns (uint256);

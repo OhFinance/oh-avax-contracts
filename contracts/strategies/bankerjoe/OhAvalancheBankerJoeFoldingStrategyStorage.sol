@@ -28,26 +28,16 @@ contract OhAvalancheBankerJoeFoldingStrategyStorage is Initializable, OhUpgradea
     }
 
     function initializeBankerJoeFoldingStorage(
-        address secondaryReward_,
         address joetroller_,
         uint256 folds_,
         uint256 collateralFactorNumerator_,
         uint256 collateralFactorDenominator_) internal initializer {
-        _setSecondaryReward(secondaryReward_);
         _setJoetroller(joetroller_);
         _setFolds(folds_);
         _setCollateralFactorNumerator(collateralFactorNumerator_);
         _setCollateralFactorDenominator(collateralFactorDenominator_);
         setSuppliedUnderlying(0);
         setBorrowedUnderlying(0);
-    }
-
-    function secondaryReward() public view override returns (address) {
-        return getAddress(_SECONDARY_REWARD_SLOT);
-    }
-
-    function _setSecondaryReward(address secondaryReward_) internal {
-        setAddress(_SECONDARY_REWARD_SLOT, secondaryReward_);
     }
 
     function joetroller() public view override returns (address) {

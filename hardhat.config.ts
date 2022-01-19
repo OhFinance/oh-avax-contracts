@@ -14,7 +14,7 @@ import '@nomiclabs/hardhat-waffle';
 import '@typechain/hardhat';
 import 'hardhat-abi-exporter';
 import 'hardhat-deploy';
-// import 'hardhat-gas-reporter';
+import 'hardhat-gas-reporter';
 import 'hardhat-spdx-license-identifier';
 
 const config: HardhatUserConfig = {

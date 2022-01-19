@@ -65,14 +65,14 @@ export const getInitializeBankerJoeFoldingStrategyData = async (
   underlying: string,
   derivative: string
 ) => {
-  const {joe, joetroller, wavax} = await getNamedAccounts();
+  const {joe, joetroller} = await getNamedAccounts();
   const strategyInterface = new ethers.utils.Interface(OhAvalancheBankerJoeFoldingStrategy);
   const bjMimFoldingAmount = 5; // Number of time we fold for borrowing/lending
   const bjMimCFNumerator = 540; // Collateral factor expressed as x/1000
   const bjMimCFDenominator = 1000;
   const initializeData = strategyInterface.encodeFunctionData(
-    'initializeBankerJoeFoldingStrategy(address,address,address,address,address,address,address,uint256,uint256,uint256)',
-    [registry, bank, underlying, derivative, joe, wavax, joetroller,
+    'initializeBankerJoeFoldingStrategy(address,address,address,address,address,address,uint256,uint256,uint256)',
+    [registry, bank, underlying, derivative, joe, joetroller,
       bjMimFoldingAmount,bjMimCFNumerator,bjMimCFDenominator]
   );
   return initializeData;
