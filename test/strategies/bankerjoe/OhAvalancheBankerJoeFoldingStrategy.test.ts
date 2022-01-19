@@ -91,6 +91,40 @@ describe('OhAvalancheBankerJoeFoldingStrategy with MIM', function () {
     expect(strategyBalance).to.be.gt(0);
   });
 
+  it('withdraw partial amount and re-invest', async function () {
+    const {deployer, worker} = await getNamedAccounts();
+    const manager = await getAvalancheManagerContract(deployer)
+    const bank = await getMimBankContract(worker)
+    const bankerJoeFoldingStrategy = await getMimBankerJoeFoldingStrategyContract(worker)
+    
+    const shares = await (await bank.balanceOf(worker));
+    const halfShares = shares.div(2);
+    console.log("Shares of worker: " + formatUnits(halfShares.toString(), 18));
+    console.log("Shares unformatted: " + halfShares.toString());
+
+    // Check that underlying balance for the user is now greater than when the test started
+    const virtualBalance = await bank.virtualBalance();
+    const virtualPrice = await bank.virtualPrice();
+
+    console.log('Virtual Balance:', formatUnits(virtualBalance.toString(), 18));
+    console.log('Virtual Price:', formatUnits(virtualPrice.toString(), 18));
+
+    await withdraw(worker, bank.address, halfShares);
+
+    const endingBalance = await mimToken.balanceOf(worker);
+    expect(halfShares).to.be.lt(endingBalance);
+    console.log('Ending Balance: ' + formatUnits(endingBalance.toString(), 18));
+
+    await approve(worker, mimToken.address, bank.address, endingBalance);
+    await deposit(worker, bank.address, endingBalance);
+    await finance(worker, manager.address, bank.address);
+
+    const strategyBalance = await bank.strategyBalance(0);
+    console.log('Strategy Balance: ' + formatUnits(strategyBalance.toString(), 18));
+
+    expect(strategyBalance).to.be.gt(0);
+  });
+
   it('exits all and is profitable', async function () {
     const {deployer, worker} = await getNamedAccounts();
     const manager = await getAvalancheManagerContract(deployer)
@@ -99,7 +133,6 @@ describe('OhAvalancheBankerJoeFoldingStrategy with MIM', function () {
     
     const shares = await bank.balanceOf(worker);
     console.log("Shares of worker: " + formatUnits(shares.toString(), 18));
-    console.log("Shares unformatted: " + shares.toString());
     
     // Withdraw all from the strategy to the bank
     await exit(deployer, manager.address, bank.address, bankerJoeFoldingStrategy.address);

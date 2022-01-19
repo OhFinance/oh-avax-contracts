@@ -12,6 +12,8 @@ import {OhStrategy} from "@ohfinance/oh-contracts/contracts/strategies/OhStrateg
 import {OhAvalancheBankerJoeHelper} from "./OhAvalancheBankerJoeHelper.sol";
 import {OhAvalancheBankerJoeFoldingStrategyStorage} from "./OhAvalancheBankerJoeFoldingStrategyStorage.sol";
 
+import "hardhat/console.sol";
+
 /// @title Oh! Finance Banker Joe Strategy
 /// @notice Standard, unleveraged strategy. Invest underlying tokens into derivative JTokens
 /// @dev https://docs.traderjoexyz.com/
@@ -101,7 +103,7 @@ contract OhAvalancheBankerJoeFoldingStrategy is IStrategy, OhAvalancheBankerJoeH
     // withdraw all underlying by redeem all JTokens
     function withdrawAll() external override onlyBank {
         updateSupply();
-        uint256 invested = investedBalance();       
+        uint256 invested = investedBalance();
         _withdraw(msg.sender, invested);
     }
 
@@ -148,9 +150,9 @@ contract OhAvalancheBankerJoeFoldingStrategy is IStrategy, OhAvalancheBankerJoeH
         if (underlyingBalance() > 10) {
             _compound();
             _deposit();
+        } else {
+            updateSupply();
         }
-
-        updateSupply();
 
         return withdrawn;
     }
@@ -162,6 +164,7 @@ contract OhAvalancheBankerJoeFoldingStrategy is IStrategy, OhAvalancheBankerJoeH
             "market cash cannot cover liquidity"
         );
         redeemMaximumUnderlyingWithLoan();
+        console.log("Done redeeming");
         require(underlyingBalance() >= amountUnderlying, "Unable to withdraw the entire amountUnderlying");
     }
 
@@ -184,6 +187,43 @@ contract OhAvalancheBankerJoeFoldingStrategy is IStrategy, OhAvalancheBankerJoeH
             redeemUnderlying(derivative(), Math.min(wantToRedeem, available));
             // now we can repay our borrowed amount
             uint256 balance = underlyingBalance();
+            repay(underlying(), derivative(), Math.min(borrowed, balance));
+
+            // update the parameters
+            available = getCash(derivative());
+            supplied = balanceOfUnderlying(derivative(), address(this));
+            borrowed = borrowBalanceCurrent(derivative(), address(this));
+        }
+
+        console.log("Supplied: %s", supplied);
+        // redeem the most we can redeem
+        redeemUnderlying(derivative(), Math.min(available, supplied));
+    }
+
+    function redeemPartialUnderlyingWithLoan(uint256 amount) internal {
+        // amount of liquidity
+        uint256 available = getCash(derivative());
+        // amount of MIM we supplied
+        uint256 supplied = balanceOfUnderlying(derivative(), address(this));
+        // amount of MIM we borrowed
+        uint256 borrowed = borrowBalanceCurrent(derivative(), address(this));
+
+        while (borrowed > 1e18) {
+            uint256 requiredCollateral = borrowed
+                .mul(collateralFactorDenominator())
+                .add(collateralFactorNumerator().div(2))           
+                .div(collateralFactorNumerator());
+
+            // redeem just as much as needed to repay the loan
+            uint256 wantToRedeem = supplied.sub(requiredCollateral);
+            redeemUnderlying(derivative(), Math.min(wantToRedeem, available));
+            
+            uint256 balance = underlyingBalance();
+            if (balance >= amount) {
+                return;
+            }
+
+            // now we can repay our borrowed amount
             repay(underlying(), derivative(), Math.min(borrowed, balance));
 
             // update the parameters
