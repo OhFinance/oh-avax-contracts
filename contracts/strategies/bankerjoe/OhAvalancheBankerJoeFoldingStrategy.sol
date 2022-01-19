@@ -11,7 +11,6 @@ import {TransferHelper} from "@ohfinance/oh-contracts/contracts/libraries/Transf
 import {OhStrategy} from "@ohfinance/oh-contracts/contracts/strategies/OhStrategy.sol";
 import {OhAvalancheBankerJoeHelper} from "./OhAvalancheBankerJoeHelper.sol";
 import {OhAvalancheBankerJoeFoldingStrategyStorage} from "./OhAvalancheBankerJoeFoldingStrategyStorage.sol";
-import {IJToken} from "./interfaces/IJToken.sol";
 
 /// @title Oh! Finance Banker Joe Strategy
 /// @notice Standard, unleveraged strategy. Invest underlying tokens into derivative JTokens
