@@ -12,7 +12,7 @@ export const updateManager = async () => {
 
 // Add swap routes for buybacks and rewards to Liquidator, then add to Manager
 export const updateLiquidator = async () => {0
-  const {deployer, joeRouter, token, usdce, wavax, benqi, joe, crv, alpha, mim, daie, usdte} = await getNamedAccounts()
+  const {deployer, joeRouter, token, usdce, wavax, benqi, joe, crv, alpha, ptpToken, mim, daie, usdte} = await getNamedAccounts()
   const manager = await getAvalancheManagerContract(deployer)
   const liquidator = await getLiquidatorContract(deployer)
 
@@ -45,6 +45,10 @@ export const updateLiquidator = async () => {0
   // rewards [crv => wavax => usdc.e] 
   await setSwapRoutes(deployer, liquidator.address, joeRouter, crv, usdce, [crv, wavax, usdce])
   await setLiquidator(deployer, manager.address, liquidator.address, crv, usdce)
+
+  // rewards [ptp => wavax => usdc.e] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, ptpToken, usdce, [ptpToken, wavax, usdce])
+  await setLiquidator(deployer, manager.address, liquidator.address, ptpToken, usdce)
 
   // rewards [alpha => wavax => usdc.e] 
   // await setSwapRoutes(deployer, liquidator.address, joeRouter, alpha, usdce, [alpha, wavax, usdce])

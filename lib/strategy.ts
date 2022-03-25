@@ -5,6 +5,7 @@ import OhAvalancheBankerJoeStrategy from '../abi/OhAvalancheBankerJoeStrategy.js
 import OhAvalancheBankerJoeFoldingStrategy from '../abi/OhAvalancheBankerJoeFoldingStrategy.json';
 import OhCurveAPoolStrategy from '../abi/OhCurveAPoolStrategy.json';
 import OhAlphaHomoraV2Strategy from '../abi/OhAlphaHomoraV2Strategy.json';
+import OhPlatypusStrategy from '../abi/OhPlatypusStrategy.json';
 
 export const getInitializeAaveV2StrategyData = async (
   registry: string,
@@ -104,6 +105,23 @@ export const getInitializeAlphaHomoraV2StrategyData = async (
   const initializeData = strategyInterface.encodeFunctionData(
     'initializeAlphaHomoraV2Strategy(address,address,address,address,address,address,address,address)',
     [registry, bank, underlying, derivative, alpha, wavax, crUSDCeToken, usdcSafeBox]
+  );
+  return initializeData;
+};
+
+export const getInitializePlatypusStrategyData = async (
+  registry: string,
+  bank: string,
+  underlying: string,
+  derivative: string,
+  index: number
+) => {
+  const {ptpToken, ptpPool, vePtp, ptpMasterPlatypusV2} = await getNamedAccounts();
+  // For index: USDT = 5, USDC = 4, DAI = Not a pool, USDCe = 1, USDTe = 0, DAIe = 2
+  const strategyInterface = new ethers.utils.Interface(OhPlatypusStrategy);
+  const initializeData = strategyInterface.encodeFunctionData(
+    'initializePlatypusStrategy(address,address,address,address,address,address,address,address,uint256)',
+    [registry, bank, underlying, derivative, ptpToken, ptpPool, vePtp, ptpMasterPlatypusV2, index]
   );
   return initializeData;
 };

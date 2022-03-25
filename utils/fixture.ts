@@ -3,7 +3,7 @@ import {deployments} from 'hardhat';
 
 import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getMimBankContract, getUsdceBankerJoeStrategyContract,
   getUsdceBenqiStrategyContract, getUsdceCurveAPoolStrategyContract, getUsdceAlphaHomoraV2StrategyContract, getMimBankerJoeFoldingStrategyContract,
-  getUsdteBankContract, getDaieBankContract, getUsdteCurveAPoolStrategyProxyContract, getDaieCurveAPoolStrategyProxyContract } from '../lib/contract';
+  getUsdcePlatypusStrategyContract, getUsdteBankContract, getDaieBankContract, getUsdteCurveAPoolStrategyProxyContract, getDaieCurveAPoolStrategyProxyContract } from '../lib/contract';
 import { swapAvaxForTokens } from './swap';
 import { updateBank, updateLiquidator, updateManager } from './tasks';
 
@@ -27,7 +27,7 @@ export const setupProxyAdmin = deployments.createFixture(async ({deployments}) =
 });
 
 export const setupBankTest = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
-  await deployments.fixture(["OhUsdceBank", "OhUsdceAaveV2Strategy", "OhUsdceBankerJoeStrategy", "OhUsdceBenqiStrategy", "OhUsdceCurveAPoolStrategy", "OhUsdceAlphaHomoraV2Strategy"])
+  await deployments.fixture(["OhUsdceBank", "OhUsdceAaveV2Strategy", "OhUsdceBankerJoeStrategy", "OhUsdceBenqiStrategy", "OhUsdceCurveAPoolStrategy", "OhUsdceAlphaHomoraV2Strategy", "OhUsdcePlatypusStrategy"])
   await updateManager();
   await updateLiquidator();
 
@@ -37,7 +37,7 @@ export const setupBankTest = deployments.createFixture(async ({deployments, getN
 });
 
 export const setupUsdceBankTest  = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
-  await deployments.fixture(["OhUsdceBank", "OhUsdceAaveV2Strategy", "OhUsdceBankerJoeStrategy", "OhUsdceBenqiStrategy", "OhUsdceCurveAPoolStrategy", "OhUsdceAlphaHomoraV2Strategy"])
+  await deployments.fixture(["OhUsdceBank", "OhUsdceAaveV2Strategy", "OhUsdceBankerJoeStrategy", "OhUsdceBenqiStrategy", "OhUsdceCurveAPoolStrategy", "OhUsdceAlphaHomoraV2Strategy", "OhUsdcePlatypusStrategy"])
   await updateManager();
   await updateLiquidator();
 
@@ -48,9 +48,10 @@ export const setupUsdceBankTest  = deployments.createFixture(async ({deployments
   //const benqiStrategy = await getUsdceBenqiStrategyContract(deployer)
   const curveStrategy = await getUsdceCurveAPoolStrategyContract(deployer)
   const alphaHomoraV2Strategy = await getUsdceAlphaHomoraV2StrategyContract(deployer)
+  const platypusStrategy = await getUsdcePlatypusStrategyContract(deployer)
 
   // Add Bank and Strategies to Manager
-  await updateBank(bank.address, [bankerJoeStrategy.address, curveStrategy.address, alphaHomoraV2Strategy.address])
+  await updateBank(bank.address, [bankerJoeStrategy.address, curveStrategy.address, alphaHomoraV2Strategy.address, platypusStrategy.address])
 
   // buy USDC.e for worker
   await swapAvaxForTokens(worker, usdce, parseEther('1000'));
