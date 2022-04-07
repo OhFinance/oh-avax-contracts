@@ -1,7 +1,7 @@
 import { getBankContract, getUpgradeableProxy, getUpgradeableProxyAt } from "@ohfinance/oh-contracts/lib";
 import { ethers } from "hardhat";
 import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy, OhPlatypusStrategy,
-  OhAvalancheBankerJoeFoldingStrategy, OhCurveAPoolStrategy, OhAlphaHomoraV2Strategy, OhAvalancheManager } from "types";
+  OhAvalancheBankerJoeFoldingStrategy, OhCurveAPoolStrategy, OhAlphaHomoraV2Strategy, OhAvalancheManager, OhPlatypusCompounder } from "types";
 
 export const getAvalancheManagerContract = async (signer: string, at?: string) => {
   if (at) {
@@ -50,6 +50,13 @@ export const getAlphaHomoraV2StrategyContract = async (signer: string, at?: stri
     return (await ethers.getContractAt('OhAlphaHomoraV2Strategy', at, signer)) as OhAlphaHomoraV2Strategy;
   }
   return (await ethers.getContract('OhAlphaHomoraV2Strategy', signer)) as OhAlphaHomoraV2Strategy;
+};
+
+export const getPlatypusCompounderContract = async (signer: string, at?: string) => {
+  if (at) {
+    return (await ethers.getContractAt('OhPlatypusCompounder', at, signer)) as OhPlatypusCompounder;
+  }
+  return (await ethers.getContract('OhPlatypusCompounder', signer)) as OhPlatypusCompounder;
 };
 
 export const getPlatypusStrategyContract = async (signer: string, at?: string) => {
@@ -196,4 +203,13 @@ export const getUsdcePlatypusStrategyProxyContract = async (signer: string) => {
 export const getUsdcePlatypusStrategyContract = async (signer:string) => {
   const proxy = await getUsdcePlatypusStrategyProxyContract(signer);
   return await getPlatypusStrategyContract(signer, proxy.address);
+}
+
+export const getGlobalPlatypusCompounderProxyContract = async (signer: string) => {
+  return await getUpgradeableProxy(signer, 'OhGlobalPlatypusCompounder');
+};
+
+export const getGlobalPlatypusCompounderContract = async (signer:string) => {
+  const proxy = await getGlobalPlatypusCompounderProxyContract(signer);
+  return await getPlatypusCompounderContract(signer, proxy.address);
 }

@@ -14,12 +14,14 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const ohUsdceBank = await ethers.getContract('OhUsdceBank');
   const proxyAdmin = await ethers.getContract('OhProxyAdmin');
   const ptpLogic = await ethers.getContract('OhPlatypusStrategy');
+  const ptpCompounderLogic = await ethers.getContract('OhPlatypusCompounder');
 
   const data = await getInitializePlatypusStrategyData(
     registry.address,
     ohUsdceBank.address,
     usdce,
     ptpUsdceLpToken,
+    ptpCompounderLogic.address,
     1
   );
   const constructorArgs = [ptpLogic.address, proxyAdmin.address, data];

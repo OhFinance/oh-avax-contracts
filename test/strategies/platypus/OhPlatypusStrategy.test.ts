@@ -3,7 +3,7 @@ import {formatUnits} from '@ethersproject/units';
 import { getNamedAccounts} from 'hardhat';
 import { approve, deposit, exit, finance, withdraw, getERC20Contract, getManagerContract } from '@ohfinance/oh-contracts/lib';
 import { advanceNBlocks, advanceNSeconds, ONE_DAY, TWO_DAYS } from '@ohfinance/oh-contracts/utils';
-import { getAvalancheManagerContract, getUsdceBankContract, getUsdcePlatypusStrategyContract } from 'lib/contract';
+import { getAvalancheManagerContract, getGlobalPlatypusCompounderContract, getUsdceBankContract, getUsdcePlatypusStrategyContract } from 'lib/contract';
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
 import { setupBankTest } from 'utils/fixture';
@@ -32,6 +32,7 @@ describe('OhPlatypusStrategy', () => {
       await getNamedAccounts();
     const bank = await getUsdceBankContract(deployer)
     const ptpStrategy = await getUsdcePlatypusStrategyContract(deployer)
+    const ptpCompounder = await getGlobalPlatypusCompounderContract(deployer)
 
     const ptpBank = await ptpStrategy.bank();
     const underlying = await ptpStrategy.underlying();
@@ -40,6 +41,7 @@ describe('OhPlatypusStrategy', () => {
     const pool = await ptpStrategy.pool();
     const vePtpToken = await ptpStrategy.vePtp();
     const masterPlatypusV2 = await ptpStrategy.masterPlatypusV2();
+    const platypusCompounder = await ptpStrategy.platypusCompounder();
     const index = await ptpStrategy.index();
 
     expect(ptpBank).eq(bank.address);
@@ -49,6 +51,7 @@ describe('OhPlatypusStrategy', () => {
     expect(pool).eq(ptpPool);
     expect(vePtpToken).eq(vePtp);
     expect(masterPlatypusV2).eq(ptpMasterPlatypusV2);
+    expect(platypusCompounder).eq(ptpCompounder.address);
     expect(index).to.be.eq(1);
   });
 

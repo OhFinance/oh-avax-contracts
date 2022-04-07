@@ -11,12 +11,14 @@ import {TransferHelper} from "@ohfinance/oh-contracts/contracts/libraries/Transf
 import {OhStrategy} from "@ohfinance/oh-contracts/contracts/strategies/OhStrategy.sol";
 import {OhPlatypusHelper} from "./OhPlatypusHelper.sol";
 import {OhPlatypusStrategyStorage} from "./OhPlatypusStrategyStorage.sol";
+import {IPlatypusCompounder} from "../../interfaces/strategies/platypus/IPlatypusCompounder.sol";
 
 /// @title Oh! Finance Platypus Strategy
 /// @notice Standard Platypus Single Underlying Strategy
 contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypusHelper, IStrategy {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
+    //using OhPlatypusCompounder for OhPlatypusCompounder;
 
     /// @notice Initialize the Platypus Strategy Logic
     constructor() initializer {
@@ -30,11 +32,12 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
     /// @param registry_ Address of the Registry
     /// @param bank_ Address of the Bank
     /// @param underlying_ Underlying (USDCe, USDTe, Daie, USDC, USDT)
-    /// @param derivative_ USDC LP Token
+    /// @param derivative_ LP Token
     /// @param reward_ PTP token
     /// @param pool_ Address of the PTP pool contract
     /// @param vePtp_ The untradeable token used for boosting yield on PTP pools (farmed by staking PTP)
-    /// @param masterPlatypusV2_ The MasterPlatypusV2 PTP contract used to staking/unstaking/claiming 
+    /// @param masterPlatypusV2_ The MasterPlatypusV2 PTP contract used to staking/unstaking/claiming
+    /// @param platypusCompounder_ The MasterPlatypusV2 PTP contract used to staking/unstaking/claiming 
     /// @param index_ Underlying index
     function initializePlatypusStrategy(
         address registry_,
@@ -45,19 +48,17 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
         address pool_,
         address vePtp_,
         address masterPlatypusV2_,
+        address platypusCompounder_,
         uint256 index_
     ) public initializer {
         initializeStrategy(registry_, bank_, underlying_, derivative_, reward_);
-        initializePlatypusStorage(pool_, masterPlatypusV2_, vePtp_, index_);
+        initializePlatypusStorage(pool_, vePtp_, masterPlatypusV2_, platypusCompounder_, index_);
     }
 
     // returns the total underlying balance
     function investedBalance() public view override returns (uint256) {
-        return derivativeBalance();
-    }
-
-    function vePTPBalance() public view returns (uint256) {
-        return IERC20(vePtp()).balanceOf(address(this));
+        uint256 exchangeRate = getExchangeRate(derivative());
+        return exchangeRate.mul(IPlatypusCompounder(platypusCompounder()).lpTokenBalance(derivative())).div(1e18);
     }
 
     /// @notice Execute the Platypus Strategy
@@ -72,10 +73,11 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
     function _deposit() internal {
         uint256 amount = underlyingBalance();
         if (amount > 0) {
+            IERC20(underlying()).safeIncreaseAllowance(platypusCompounder(), amount);
             // add liquidity to PTP pool
-            _addLiquidity(pool(), underlying(), address(this), amount);
+            IPlatypusCompounder(platypusCompounder()).addLiquidity(pool(), underlying(), address(this), amount);
             // stake all received in the PTP MasterPlatypusV2 contract
-            _stake(masterPlatypusV2(), derivative(), derivativeBalance(), index());
+            IPlatypusCompounder(platypusCompounder()).stake(masterPlatypusV2(), derivative(), index());
         }
     }
 
@@ -95,10 +97,10 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
     }
 
     /// @dev Compound rewards into underlying through liquidation
-    /// @dev Claim Rewards from Mintr, sell PTP for USDCe
+    /// @dev Claim Rewards, sell PTP for underlying
     function _compound() internal {
         // claim available PTP rewards
-        _claimPtp(masterPlatypusV2(), index());
+        IPlatypusCompounder(platypusCompounder()).claimPtp(masterPlatypusV2(), index());
 
         uint256 rewardAmount = rewardBalance();
         if (rewardAmount > 0) {
@@ -110,13 +112,13 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
     // Deposit PTP to boost PTP yield when staking underlying into PTP pools
     function depositBoostPtp(uint256 amount) external onlyBank {
         if (amount > 0) {
-            _depositPtpForBoost(amount, vePtp());
+            IPlatypusCompounder(platypusCompounder()).depositPtpForBoost(amount, vePtp());
         }
     }
 
     // Claim vePTP mined from staking PTP. Holding vePTP boosts APR on staking stablecoins
     function claimVePtpRewards() external onlyBank {
-        _claimVePtp(vePtp());
+        IPlatypusCompounder(platypusCompounder()).claimVePtp(vePtp());
     }
 
     // Withdraw underlying tokens from the protocol
@@ -138,11 +140,15 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
         uint256 minAmount = redeemAmount.mul(9999).div(10000);
 
         // unstake from PTP LP Pool and remove liquidity from Pool
-        _unstake(masterPlatypusV2(), redeemAmount, index());
-        _removeLiquidity(pool(), derivative(), underlying(), address(this), redeemAmount, minAmount);
-
-        // withdraw to bank
-        uint256 withdrawn = TransferHelper.safeTokenTransfer(recipient, underlying(), amount);
+        IPlatypusCompounder(platypusCompounder()).unstake(masterPlatypusV2(), redeemAmount, index());
+        uint256 withdrawn = IPlatypusCompounder(platypusCompounder()).removeLiquidity(
+            pool(),
+            derivative(),
+            underlying(),
+            recipient,
+            redeemAmount,
+            minAmount
+        );
 
         return withdrawn;
     }
