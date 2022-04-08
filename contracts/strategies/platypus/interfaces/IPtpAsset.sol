@@ -6,6 +6,8 @@ interface IPtpAsset {
 
     function cash() external view returns (uint256);
 
+    function liability() external view returns (uint256);
+
     function underlyingTokenBalance() external view returns (uint256);
 
     function totalSupply() external view returns (uint256);

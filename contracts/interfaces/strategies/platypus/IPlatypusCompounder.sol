@@ -3,21 +3,21 @@
 pragma solidity 0.7.6;
 
 interface IPlatypusCompounder {
-    function lpTokenBalance(address lpToken) external view returns (uint256);
+    function investedBalance(uint256 pid, address lpToken) external view returns (uint256);
 
-    function addLiquidity(address pool, address underlying, address sender, uint256 amount) external;
+    function addLiquidity(address underlying, uint256 amount) external;
 
-    function removeLiquidity(address pool, address lpToken, address underlying, address recipient, uint256 amount, uint256 minAmount) external returns (uint256);
+    function removeLiquidity(address lpToken, address underlying, address recipient, uint256 amount, uint256 minAmount) external returns (uint256);
 
-    function stake(address masterPlatypus, address lpToken, uint256 index) external;
+    function stake(address lpToken, uint256 index) external;
 
-    function unstake(address masterPlatypus, uint256 amount, uint256 index) external;
+    function unstake(uint256 amount, uint256 index) external;
 
-    function claimPtp(address masterPlatypus, uint256 index) external;
+    function claimPtp(uint256 index) external;
 
-    function depositPtpForBoost(uint256 amount, address vePtp) external;
+    function depositPtpForBoost() external;
 
-    function withdrawPtpForBoost(uint256 amount, address vePtp) external;
+    function withdrawPtpForBoost(uint256 amount) external;
 
-    function claimVePtp(address vePtp) external;
+    function claimVePtp() external;
 }

@@ -28,5 +28,5 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 deploy.tags = ['Protocol', 'OhGlobalPlatypusCompounder'];
-deploy.dependencies = ['OhRegistry', 'OhProxyAdmin'];
+deploy.dependencies = ['OhRegistry', 'OhProxyAdmin', 'OhPlatypusCompounder'];
 export default deploy;

@@ -4,6 +4,7 @@ pragma solidity 0.7.6;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import {IPtpAsset} from "./interfaces/IPtpAsset.sol";
 import {IPtpPool} from "./interfaces/IPtpPool.sol";
 
@@ -12,12 +13,17 @@ import {IPtpPool} from "./interfaces/IPtpPool.sol";
 /// @dev https://docs.traderjoexyz.com/
 abstract contract OhPlatypusHelper {
     using SafeERC20 for IERC20;
+    using SafeMath for uint256;
 
     /// @notice Get the exchange rate of lpToken => underlying
     /// @dev https://compound.finance/docs/ctokens#exchange-rate
     /// @param lpToken The lpToken address rate to get
+    /// @dev (cash + liability - underlyingBalance) / totalSupply
     function getExchangeRate(address lpToken) internal view returns (uint256) {
-        return (IPtpAsset(lpToken).cash() + IPtpAsset(lpToken).underlyingTokenBalance()) / IPtpAsset(lpToken).totalSupply();
+        return IPtpAsset(lpToken).cash()
+            .add(IPtpAsset(lpToken).liability())
+            .sub(IPtpAsset(lpToken).underlyingTokenBalance())
+            .div(IPtpAsset(lpToken).totalSupply());
     }
 
     /// @notice Swaps underlying for underlying (stable to stable)

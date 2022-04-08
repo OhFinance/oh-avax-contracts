@@ -18,7 +18,6 @@ import {IPlatypusCompounder} from "../../interfaces/strategies/platypus/IPlatypu
 contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypusHelper, IStrategy {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
-    //using OhPlatypusCompounder for OhPlatypusCompounder;
 
     /// @notice Initialize the Platypus Strategy Logic
     constructor() initializer {
@@ -34,10 +33,7 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
     /// @param underlying_ Underlying (USDCe, USDTe, Daie, USDC, USDT)
     /// @param derivative_ LP Token
     /// @param reward_ PTP token
-    /// @param pool_ Address of the PTP pool contract
-    /// @param vePtp_ The untradeable token used for boosting yield on PTP pools (farmed by staking PTP)
-    /// @param masterPlatypusV2_ The MasterPlatypusV2 PTP contract used to staking/unstaking/claiming
-    /// @param platypusCompounder_ The MasterPlatypusV2 PTP contract used to staking/unstaking/claiming 
+    /// @param platypusCompounder_ The Platypus Compounder used by all the Platypus Strategies
     /// @param index_ Underlying index
     function initializePlatypusStrategy(
         address registry_,
@@ -45,20 +41,25 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
         address underlying_,
         address derivative_,
         address reward_,
-        address pool_,
-        address vePtp_,
-        address masterPlatypusV2_,
         address platypusCompounder_,
         uint256 index_
     ) public initializer {
         initializeStrategy(registry_, bank_, underlying_, derivative_, reward_);
-        initializePlatypusStorage(pool_, vePtp_, masterPlatypusV2_, platypusCompounder_, index_);
+        initializePlatypusStorage(platypusCompounder_, index_);
+
+        IERC20(underlying_).approve(platypusCompounder_, type(uint256).max);
     }
 
     // returns the total underlying balance
     function investedBalance() public view override returns (uint256) {
-        uint256 exchangeRate = getExchangeRate(derivative());
-        return exchangeRate.mul(IPlatypusCompounder(platypusCompounder()).lpTokenBalance(derivative())).div(1e18);
+        address _derivative = derivative();
+        uint256 exchangeRate = getExchangeRate(_derivative);
+        return exchangeRate.mul(stakedBalance()).div(1e18);
+    }
+
+    // amount of lp tokens staked in Master Platypus
+    function stakedBalance() public view returns (uint256) {
+        return IPlatypusCompounder(platypusCompounder()).investedBalance(index(), derivative());
     }
 
     /// @notice Execute the Platypus Strategy
@@ -73,11 +74,12 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
     function _deposit() internal {
         uint256 amount = underlyingBalance();
         if (amount > 0) {
-            IERC20(underlying()).safeIncreaseAllowance(platypusCompounder(), amount);
+            address compounder = platypusCompounder();
+
             // add liquidity to PTP pool
-            IPlatypusCompounder(platypusCompounder()).addLiquidity(pool(), underlying(), address(this), amount);
+            IPlatypusCompounder(compounder).addLiquidity(underlying(), amount);
             // stake all received in the PTP MasterPlatypusV2 contract
-            IPlatypusCompounder(platypusCompounder()).stake(masterPlatypusV2(), derivative(), index());
+            IPlatypusCompounder(compounder).stake(derivative(), index());
         }
     }
 
@@ -100,25 +102,15 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
     /// @dev Claim Rewards, sell PTP for underlying
     function _compound() internal {
         // claim available PTP rewards
-        IPlatypusCompounder(platypusCompounder()).claimPtp(masterPlatypusV2(), index());
+        address platypusCompounder = platypusCompounder(); 
+        IPlatypusCompounder(platypusCompounder).claimPtp(index());
 
         uint256 rewardAmount = rewardBalance();
         if (rewardAmount > 0) {
-            //TODO: have code that decides how to split the PTP rewards (underlying/boost/repayments)
+            // Deposit accrued PTP on Compounder, then liquidate profits
+            IPlatypusCompounder(platypusCompounder).depositPtpForBoost();
             liquidate(reward(), underlying(), rewardAmount);
         }
-    }
-
-    // Deposit PTP to boost PTP yield when staking underlying into PTP pools
-    function depositBoostPtp(uint256 amount) external onlyBank {
-        if (amount > 0) {
-            IPlatypusCompounder(platypusCompounder()).depositPtpForBoost(amount, vePtp());
-        }
-    }
-
-    // Claim vePTP mined from staking PTP. Holding vePTP boosts APR on staking stablecoins
-    function claimVePtpRewards() external onlyBank {
-        IPlatypusCompounder(platypusCompounder()).claimVePtp(vePtp());
     }
 
     // Withdraw underlying tokens from the protocol
@@ -132,17 +124,25 @@ contract OhPlatypusStrategy is OhStrategy, OhPlatypusStrategyStorage, OhPlatypus
             return 0;
         }
 
+        uint256 staked = stakedBalance();
+
         // calculate % of supply ownership
         uint256 supplyShare = amount.mul(1e18).div(invested);
 
+        // find amount of lp tokens to withdraw
+        uint256 unstakeAmount = Math.min(staked, supplyShare.mul(staked).div(1e18));
+
         // find amount to redeem in underlying, 1e6
         uint256 redeemAmount = Math.min(invested, supplyShare.mul(invested).div(1e18));
-        uint256 minAmount = redeemAmount.mul(9999).div(10000);
+        uint256 minAmount = redeemAmount.mul(999).div(1000);
+
+        address compounder = platypusCompounder();
 
         // unstake from PTP LP Pool and remove liquidity from Pool
-        IPlatypusCompounder(platypusCompounder()).unstake(masterPlatypusV2(), redeemAmount, index());
-        uint256 withdrawn = IPlatypusCompounder(platypusCompounder()).removeLiquidity(
-            pool(),
+        IPlatypusCompounder(compounder).unstake(unstakeAmount, index());
+
+        // withdraw LP to Bank
+        uint256 withdrawn = IPlatypusCompounder(compounder).removeLiquidity(
             derivative(),
             underlying(),
             recipient,

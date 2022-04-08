@@ -76,7 +76,7 @@ contract OhAvalancheBankerJoeFoldingStrategyStorage is Initializable, OhUpgradea
         return getUInt256(_SUPPLIED_UNDERLYING);
     }
 
-    function setSuppliedUnderlying(uint256 suppliedUnderlying_) public override {
+    function setSuppliedUnderlying(uint256 suppliedUnderlying_) internal {
         setUInt256(_SUPPLIED_UNDERLYING, suppliedUnderlying_);
     }
 
@@ -84,7 +84,7 @@ contract OhAvalancheBankerJoeFoldingStrategyStorage is Initializable, OhUpgradea
         return getUInt256(_BORROWED_UNDERLYING);
     }
 
-    function setBorrowedUnderlying(uint256 borrowedUnderlying_) public override {
+    function setBorrowedUnderlying(uint256 borrowedUnderlying_) internal {
         setUInt256(_BORROWED_UNDERLYING, borrowedUnderlying_);
     }
 }

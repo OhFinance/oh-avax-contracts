@@ -95,3 +95,13 @@ export const updateBank = async (bank: string, strategies: string[]) => {
     await addStrategy(deployer, manager.address, bank, strategies[i]);
   }
 }
+
+export const updatePlatypusCompounder = async (strategies: string[]) => {
+  const {deployer} = await getNamedAccounts()
+  const manager = await getAvalancheManagerContract(deployer)
+
+  // Whitelist the PTP strategies with the Compounder
+  for (let i = 0; i < strategies.length; i++) {
+    // await 
+  }
+}
