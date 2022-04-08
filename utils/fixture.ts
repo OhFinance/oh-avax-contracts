@@ -27,7 +27,7 @@ export const setupProxyAdmin = deployments.createFixture(async ({deployments}) =
 });
 
 export const setupBankTest = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
-  await deployments.fixture(["OhUsdceBank", "OhUsdceAaveV2Strategy", "OhUsdceBankerJoeStrategy", "OhUsdceBenqiStrategy", "OhUsdceCurveAPoolStrategy", "OhUsdceAlphaHomoraV2Strategy", "OhUsdcePlatypusStrategy", "OhPlatypusCompounder"])
+  await deployments.fixture(["OhUsdceBank", "OhUsdceAaveV2Strategy", "OhUsdceBankerJoeStrategy", "OhUsdceBenqiStrategy", "OhUsdceCurveAPoolStrategy", "OhUsdceAlphaHomoraV2Strategy", "OhUsdcePlatypusStrategy", "OhGlobalPlatypusCompounder"])
   await updateManager();
   await updateLiquidator();
 

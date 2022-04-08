@@ -118,12 +118,12 @@ export const getInitializePlatypusStrategyData = async (
   compounder: string,
   index: number
 ) => {
-  const {ptpToken, ptpPool, vePtp} = await getNamedAccounts();
   // For index: USDT = 5, USDC = 4, DAI = Not a pool, USDCe = 1, USDTe = 0, DAIe = 2
+  const {ptpToken} = await getNamedAccounts();
   const strategyInterface = new ethers.utils.Interface(OhPlatypusStrategy);
   const initializeData = strategyInterface.encodeFunctionData(
-    'initializePlatypusStrategy(address,address,address,address,address,uint256)',
-    [registry, bank, underlying, derivative, compounder, index]
+    'initializePlatypusStrategy(address,address,address,address,address,address,uint256)',
+    [registry, bank, underlying, derivative, ptpToken, compounder, index]
   );
   return initializeData;
 };
@@ -131,11 +131,11 @@ export const getInitializePlatypusStrategyData = async (
 export const getInitializePlatypusCompounderData = async (
   registry: string
 ) => {
-  const {ptpMasterPlatypusV2} = await getNamedAccounts();
+  const {ptpToken, vePtp, ptpPool, ptpMasterPlatypusV2} = await getNamedAccounts();
   const compounderInterface = new ethers.utils.Interface(OhPlatypusCompounder);
   const initializeData = compounderInterface.encodeFunctionData(
-    'initializePlatypusCompounder(address,address,address,address,address)',
-    [registry, ptpToken, vePtp, ptpPool, ptpMasterPlatypusV2]
+    'initializePlatypusCompounder(address,address,address,address,address,uint256)',
+    [registry, ptpToken, vePtp, ptpPool, ptpMasterPlatypusV2, 10]
   );
   return initializeData;
 };

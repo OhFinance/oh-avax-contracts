@@ -1,4 +1,4 @@
-import { addBank, addStrategy, getLiquidatorContract, getRegistryContract, setLiquidator, setManager, setSwapRoutes } from "@ohfinance/oh-contracts/lib";
+import { addBank, addStrategy, getLiquidatorContract, getRegistryContract, setLiquidator, setManager, setSwapRoutes, setWhitelisted } from "@ohfinance/oh-contracts/lib";
 import { getNamedAccounts } from "hardhat";
 import { getAvalancheManagerContract } from "lib/contract";
 
@@ -102,6 +102,6 @@ export const updatePlatypusCompounder = async (strategies: string[]) => {
 
   // Whitelist the PTP strategies with the Compounder
   for (let i = 0; i < strategies.length; i++) {
-    // await 
+    await setWhitelisted(deployer, manager.address, strategies[i]);
   }
 }

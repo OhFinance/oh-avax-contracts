@@ -14,14 +14,14 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const ohUsdceBank = await ethers.getContract('OhUsdceBank');
   const proxyAdmin = await ethers.getContract('OhProxyAdmin');
   const ptpLogic = await ethers.getContract('OhPlatypusStrategy');
-  const ptpCompounderLogic = await ethers.getContract('OhPlatypusCompounder');
+  const ptpCompounder = await ethers.getContract('OhGlobalPlatypusCompounder');
 
   const data = await getInitializePlatypusStrategyData(
     registry.address,
     ohUsdceBank.address,
     usdce,
     ptpUsdceLpToken,
-    ptpCompounderLogic.address,
+    ptpCompounder.address,
     1
   );
   const constructorArgs = [ptpLogic.address, proxyAdmin.address, data];
@@ -37,5 +37,5 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 deploy.tags = ['OhUsdcePlatypusStrategy'];
-deploy.dependencies = ['OhRegistry', 'OhProxyAdmin', 'OhStrategy', 'OhUsdceBank'];
+deploy.dependencies = ['OhRegistry', 'OhProxyAdmin', 'OhStrategy', 'OhUsdceBank', 'OhPlatypusCompounder'];
 export default deploy;

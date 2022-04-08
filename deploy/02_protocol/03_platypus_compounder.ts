@@ -13,7 +13,6 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const registry = await ethers.getContract('OhRegistry');
   const proxyAdmin = await ethers.getContract('OhProxyAdmin');
   const ptpCompounderLogic = await ethers.getContract('OhPlatypusCompounder');
-
   const data = await getInitializePlatypusCompounderData(registry.address);
   const constructorArgs = [ptpCompounderLogic.address, proxyAdmin.address, data];
 
@@ -27,6 +26,6 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 };
 
-deploy.tags = ['Protocol', 'OhGlobalPlatypusCompounder'];
+deploy.tags = ['OhGlobalPlatypusCompounder'];
 deploy.dependencies = ['OhRegistry', 'OhProxyAdmin', 'OhPlatypusCompounder'];
 export default deploy;

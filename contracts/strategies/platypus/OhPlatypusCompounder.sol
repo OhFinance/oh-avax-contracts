@@ -25,9 +25,8 @@ contract OhPlatypusCompounder is OhSubscriberUpgradeable, OhPlatypusCompounderSt
     modifier onlyAllowed {
         address bank = IStrategy(msg.sender).bank();
         require(
-            msg.sender == governance(),
-            // IManager(manager()).strategies(bank, msg.sender) || msg.sender == governance(), 
-            "OhPlatypusGuard: Only Strategy or Governance"
+            IManager(manager()).whitelisted(msg.sender) || msg.sender == governance(), 
+            "OhPlatypusCompounder: Only Strategy or Governance"
         );
         _;
     }

@@ -7,7 +7,7 @@ import { getAvalancheManagerContract, getGlobalPlatypusCompounderContract, getUs
 import { BigNumber } from '@ethersproject/bignumber';
 import { IERC20 } from '@ohfinance/oh-contracts/types';
 import { setupBankTest } from 'utils/fixture';
-import { updateBank } from 'utils/tasks';
+import { updateBank, updatePlatypusCompounder } from 'utils/tasks';
 
 describe('OhPlatypusStrategy', () => {
   let usdceToken: IERC20;
@@ -21,6 +21,7 @@ describe('OhPlatypusStrategy', () => {
     const ptpStrategy = await getUsdcePlatypusStrategyContract(deployer)
 
     await updateBank(bank.address, [ptpStrategy.address])
+    await updatePlatypusCompounder([ptpStrategy.address])
 
     usdceToken = await getERC20Contract(worker, usdce);
     startingBalance = await usdceToken.balanceOf(worker);
@@ -38,11 +39,11 @@ describe('OhPlatypusStrategy', () => {
     const underlying = await ptpStrategy.underlying();
     const derivative = await ptpStrategy.derivative();
     const reward = await ptpStrategy.reward();
-    const pool = await ptpStrategy.pool();
-    const vePtpToken = await ptpStrategy.vePtp();
-    const masterPlatypusV2 = await ptpStrategy.masterPlatypusV2();
-    const platypusCompounder = await ptpStrategy.platypusCompounder();
     const index = await ptpStrategy.index();
+    const platypusCompounder = await ptpStrategy.platypusCompounder();
+    const pool = await ptpCompounder.pool();
+    const vePtpToken = await ptpCompounder.vePtp();
+    const masterPlatypusV2 = await ptpCompounder.masterPlatypusV2();
 
     expect(ptpBank).eq(bank.address);
     expect(underlying).eq(usdce);
