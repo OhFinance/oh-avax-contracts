@@ -35,6 +35,11 @@ const config: HardhatUserConfig = {
     overwrite: false,
     runOnCompile: true,
   },
+  etherscan: {
+    apiKey: {
+      avalanche: process.env.SNOWTRACE_API_KEY || ''
+    }
+  },
   mocha: {
     timeout: 200000
   },
