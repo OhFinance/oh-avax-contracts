@@ -36,9 +36,9 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
   },
   etherscan: {
-    apiKey: {
-      avalanche: process.env.SNOWTRACE_API_KEY || ''
-    }
+    // apiKey: {
+    //   avalanche: process.env.SNOWTRACE_API_KEY || ''
+    // }
   },
   mocha: {
     timeout: 200000
@@ -104,6 +104,12 @@ const config: HardhatUserConfig = {
     },
     crUSDCeToken: {
       43114: '0xe28965073c49a02923882b8329d3e8c1d805e832' // CREAM USDCe Token
+    },
+    usdc: {
+      43114: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E'
+    },
+    usdt: {
+      43114: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7'
     },
     usdcSafeBox: {
       43114: '0xD3843b60e69f958eF93BeC299467e6Ed301CbEeB' // ibUSDC token is same address as SafeBox
@@ -188,7 +194,7 @@ const config: HardhatUserConfig = {
       live: false,
       forking: {
         url: process.env.AVALANCHE_RPC_URL ?? 'https://api.avax.network/ext/bc/C/rpc',
-        blockNumber: 	13134236
+        blockNumber: 	13785820
       }
     },
     fuji: {

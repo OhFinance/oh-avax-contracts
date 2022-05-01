@@ -66,6 +66,40 @@ export const getPlatypusStrategyContract = async (signer: string, at?: string) =
   return (await ethers.getContract('OhPlatypusStrategy', signer)) as OhPlatypusStrategy;
 };
 
+export const getUsdcBankProxyContract = async (signer: string, at?: string) => {
+  if (at) {
+    return await getUpgradeableProxy(signer, 'OhUsdcBank', at)
+  }
+  return await getUpgradeableProxy(signer, 'OhUsdcBank');
+};
+
+export const getUsdcBankContract = async (signer:string, at?: string) => {
+  if (at) {
+    const proxy = await getUsdcBankProxyContract(signer, at);
+    return await getBankContract(signer, proxy.address);
+  } else {
+    const proxy = await getUsdcBankProxyContract(signer);
+    return await getBankContract(signer, proxy.address);
+  } 
+}
+
+export const getUsdtBankProxyContract = async (signer: string, at?: string) => {
+  if (at) {
+    return await getUpgradeableProxy(signer, 'OhUsdtBank', at)
+  }
+  return await getUpgradeableProxy(signer, 'OhUsdtBank');
+};
+
+export const getUsdtBankContract = async (signer:string, at?: string) => {
+  if (at) {
+    const proxy = await getUsdtBankProxyContract(signer, at);
+    return await getBankContract(signer, proxy.address);
+  } else {
+    const proxy = await getUsdtBankProxyContract(signer);
+    return await getBankContract(signer, proxy.address);
+  } 
+}
+
 export const getUsdceBankProxyContract = async (signer: string, at?: string) => {
   if (at) {
     return await getUpgradeableProxy(signer, 'OhUsdceBank', at)

@@ -1,7 +1,7 @@
 import { parseEther } from '@ethersproject/units';
 import {deployments} from 'hardhat';
 
-import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getMimBankContract, getUsdceBankerJoeStrategyContract,
+import { getUsdceAaveV2StrategyContract, getUsdceBankContract, getUsdcBankContract, getUsdtBankContract, getMimBankContract, getUsdceBankerJoeStrategyContract,
   getUsdceBenqiStrategyContract, getUsdceCurveAPoolStrategyContract, getUsdceAlphaHomoraV2StrategyContract, getMimBankerJoeFoldingStrategyContract,
   getUsdcePlatypusStrategyContract, getUsdteBankContract, getDaieBankContract, getUsdteCurveAPoolStrategyProxyContract, getDaieCurveAPoolStrategyProxyContract } from '../lib/contract';
 import { swapAvaxForTokens } from './swap';
@@ -34,6 +34,36 @@ export const setupBankTest = deployments.createFixture(async ({deployments, getN
   // buy USDC.e for worker
   const {worker, usdce} = await getNamedAccounts()
   await swapAvaxForTokens(worker, usdce, parseEther('1000'));
+});
+
+export const setupUsdcBankTest  = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
+  await deployments.fixture(["OhUsdcBank"])
+  await updateManager();
+  await updateLiquidator();
+
+  const {deployer, worker, usdc} = await getNamedAccounts()
+  const bank = await getUsdcBankContract(deployer)
+
+  // Add Bank and Strategies to Manager
+  await updateBank(bank.address, []);
+
+  // buy USDC for worker
+  await swapAvaxForTokens(worker, usdc, parseEther('1000'));
+});
+
+export const setupUsdtBankTest  = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
+  await deployments.fixture(["OhUsdtBank"])
+  await updateManager();
+  await updateLiquidator();
+
+  const {deployer, worker, usdt} = await getNamedAccounts()
+  const bank = await getUsdtBankContract(deployer)
+
+  // Add Bank and Strategies to Manager
+  await updateBank(bank.address, []);
+
+  // buy USDT for worker
+  await swapAvaxForTokens(worker, usdt, parseEther('1000'));
 });
 
 export const setupUsdceBankTest  = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
