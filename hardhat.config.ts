@@ -162,12 +162,6 @@ const config: HardhatUserConfig = {
     vePtp: {
       43114: '0x5857019c749147eee22b1fe63500f237f3c1b692'
     },
-    usdc: {
-      43114: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E'
-    },
-    usdt: {
-      43114: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7'
-    },
     usdce: {
       43114: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664' // USDC.e
     },
