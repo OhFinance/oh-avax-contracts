@@ -13,9 +13,5 @@ interface IAvalancheBankerJoeFoldingStrategyStorage {
 
     function suppliedUnderlying() external view returns (uint256);
 
-    function setSuppliedUnderlying(uint256 suppliedUnderlying_) external;
-
     function borrowedUnderlying() external view returns (uint256);
-
-    function setBorrowedUnderlying(uint256 borrowedUnderlying_) external;
 }

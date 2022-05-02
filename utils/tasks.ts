@@ -1,4 +1,4 @@
-import { addBank, addStrategy, getLiquidatorContract, getRegistryContract, setLiquidator, setManager, setSwapRoutes } from "@ohfinance/oh-contracts/lib";
+import { addBank, addStrategy, getLiquidatorContract, getRegistryContract, setLiquidator, setManager, setSwapRoutes, setWhitelisted } from "@ohfinance/oh-contracts/lib";
 import { getNamedAccounts } from "hardhat";
 import { getAvalancheManagerContract } from "lib/contract";
 
@@ -12,7 +12,7 @@ export const updateManager = async () => {
 
 // Add swap routes for buybacks and rewards to Liquidator, then add to Manager
 export const updateLiquidator = async () => {0
-  const {deployer, joeRouter, token, usdce, wavax, benqi, joe, crv, alpha, mim, daie, usdte} = await getNamedAccounts()
+  const {deployer, joeRouter, token, usdce, wavax, benqi, joe, crv, alpha, ptpToken, mim, daie, usdte} = await getNamedAccounts()
   const manager = await getAvalancheManagerContract(deployer)
   const liquidator = await getLiquidatorContract(deployer)
 
@@ -45,6 +45,10 @@ export const updateLiquidator = async () => {0
   // rewards [crv => wavax => usdc.e] 
   await setSwapRoutes(deployer, liquidator.address, joeRouter, crv, usdce, [crv, wavax, usdce])
   await setLiquidator(deployer, manager.address, liquidator.address, crv, usdce)
+
+  // rewards [ptp => wavax => usdc.e] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, ptpToken, usdce, [ptpToken, wavax, usdce])
+  await setLiquidator(deployer, manager.address, liquidator.address, ptpToken, usdce)
 
   // rewards [alpha => wavax => usdc.e] 
   // await setSwapRoutes(deployer, liquidator.address, joeRouter, alpha, usdce, [alpha, wavax, usdce])
@@ -89,5 +93,15 @@ export const updateBank = async (bank: string, strategies: string[]) => {
   // Add all Strategies to Manager
   for (let i = 0; i < strategies.length; i++) {
     await addStrategy(deployer, manager.address, bank, strategies[i]);
+  }
+}
+
+export const updatePlatypusCompounder = async (strategies: string[]) => {
+  const {deployer} = await getNamedAccounts()
+  const manager = await getAvalancheManagerContract(deployer)
+
+  // Whitelist the PTP strategies with the Compounder
+  for (let i = 0; i < strategies.length; i++) {
+    await setWhitelisted(deployer, manager.address, strategies[i]);
   }
 }

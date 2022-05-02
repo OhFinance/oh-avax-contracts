@@ -69,6 +69,15 @@ const config: HardhatUserConfig = {
     alpha: {
       43114: '0x0000000000000000000000000000000000000000' // Zero address until the Alpha Token contract is deployed on Avalanche
     },
+    avalancheBridgeUsdce: {
+      43114: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664'
+    },
+    avalancheBridgeUsdte: {
+      43114: '0xc7198437980c041c805a1edcba50c1ce5db95118'
+    },
+    avalancheBridgeDaie: {
+      43114: '0xd586E7F844cEa2F87f50152665BCbc2C279D8d70'
+    },
     benqi: {
       43114: '0x8729438EB15e2C8B576fCc6AeCdA6A148776C0F5',
     },
@@ -109,31 +118,64 @@ const config: HardhatUserConfig = {
       43114: '0x60aE616a2155Ee3d9A68541Ba4544862310933d4'
     },
     joe: {
-      43114: '0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd',
+      43114: '0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd'
     },
     joetroller: {
-      43114: '0xdc13687554205E5b89Ac783db14bb5bba4A1eDaC',
+      43114: '0xdc13687554205E5b89Ac783db14bb5bba4A1eDaC'
     },
     joeUsdce: {
-      43114: '0xEd6AaF91a2B084bd594DBd1245be3691F9f637aC', // Banker Joe USD coin
+      43114: '0xEd6AaF91a2B084bd594DBd1245be3691F9f637aC' // Banker Joe USD coin
     },
     joeMim: {
-      43114: '0xce095a9657a02025081e0607c8d8b081c76a75ea', // Banker Joe MIM coin
+      43114: '0xce095a9657a02025081e0607c8d8b081c76a75ea' // Banker Joe MIM coin
     },
     mim: {
-      43114: '0x130966628846bfd36ff31a822705796e8cb8c18d',
+      43114: '0x130966628846bfd36ff31a822705796e8cb8c18d'
     },
     daie: {
-      43114: '0xd586E7F844cEa2F87f50152665BCbc2C279D8d70', // DAI.e
+      43114: '0xd586E7F844cEa2F87f50152665BCbc2C279D8d70' // DAI.e
+    },
+    ptpToken: {
+      43114: '0x22d4002028f537599bE9f666d1c4Fa138522f9c8'
+    },
+    ptpPool: {
+      43114: '0x66357dCaCe80431aee0A7507e2E361B7e2402370'
+    },
+    ptpMasterPlatypusV2: {
+      43114: '0x68c5f4374228BEEdFa078e77b5ed93C28a2f713E'
+    },
+    ptpUsdceLpToken: {
+      43114: '0x909b0ce4fac1a0dca78f8ca7430bbafeeca12871'
+    },
+    ptpUsdteLpToken: {
+      43114: '0x0d26d103c91f63052fbca88aaf01d5304ae40015'
+    },
+    ptpDaieLpToken: {
+      43114: '0xc1daa16e6979c2d1229cb1fd0823491ea44555be'
+    },
+    ptpUsdcLpToken: {
+      43114: '0xAEf735B1E7EcfAf8209ea46610585817Dc0a2E16'
+    },
+    ptpUsdtLpToken: {
+      43114: '0x776628A5C37335608DD2a9538807b9bba3869E14'
+    },
+    vePtp: {
+      43114: '0x5857019c749147eee22b1fe63500f237f3c1b692'
+    },
+    usdc: {
+      43114: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E'
+    },
+    usdt: {
+      43114: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7'
     },
     usdce: {
-      43114: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664', // USDC.e
+      43114: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664' // USDC.e
     },
     usdte: {
-      43114: '0xc7198437980c041c805A1EDcbA50c1Ce5db95118', // USDT.e
+      43114: '0xc7198437980c041c805A1EDcbA50c1Ce5db95118' // USDT.e
     },
     wavax: {
-      43114: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+      43114: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'
     },
   },
   typechain: {
