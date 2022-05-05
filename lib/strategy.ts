@@ -5,6 +5,7 @@ import OhAvalancheBankerJoeStrategy from '../abi/OhAvalancheBankerJoeStrategy.js
 import OhAvalancheBankerJoeFoldingStrategy from '../abi/OhAvalancheBankerJoeFoldingStrategy.json';
 import OhCurveAPoolStrategy from '../abi/OhCurveAPoolStrategy.json';
 import OhAlphaHomoraV2Strategy from '../abi/OhAlphaHomoraV2Strategy.json';
+import OhYetiStrategy from '../abi/OhYetiStrategy.json';
 
 export const getInitializeAaveV2StrategyData = async (
   registry: string,
@@ -104,6 +105,21 @@ export const getInitializeAlphaHomoraV2StrategyData = async (
   const initializeData = strategyInterface.encodeFunctionData(
     'initializeAlphaHomoraV2Strategy(address,address,address,address,address,address,address,address)',
     [registry, bank, underlying, derivative, alpha, wavax, crUSDCeToken, usdcSafeBox]
+  );
+  return initializeData;
+};
+
+export const getInitializeYetiStrategyData = async (
+  registry: string,
+  bank: string,
+  underlying: string,
+  index: string
+) => {
+  const {yeti, crvYusdPool, crvLpFarm, veYeti, yetiRewarder, joetroller} = await getNamedAccounts();
+  const strategyInterface = new ethers.utils.Interface(OhYetiStrategy);
+  const initializeData = strategyInterface.encodeFunctionData(
+    'initializeYetiStrategy(address,address,address,address,address,address,address,uint256)',
+    [registry, bank, underlying, crvYusdPool, yeti, crvLpFarm, veYeti, yetiRewarder, joetroller, 10, index]
   );
   return initializeData;
 };

@@ -12,7 +12,7 @@ export const updateManager = async () => {
 
 // Add swap routes for buybacks and rewards to Liquidator, then add to Manager
 export const updateLiquidator = async () => {0
-  const {deployer, joeRouter, token, usdce, wavax, benqi, joe, crv, alpha, mim, daie, usdte} = await getNamedAccounts()
+  const {deployer, joeRouter, token, wavax, benqi, joe, crv, alpha, mim, yeti, daie, usdce, usdte, usdc, usdt} = await getNamedAccounts()
   const manager = await getAvalancheManagerContract(deployer)
   const liquidator = await getLiquidatorContract(deployer)
 
@@ -74,9 +74,17 @@ export const updateLiquidator = async () => {0
   await setSwapRoutes(deployer, liquidator.address, joeRouter, wavax, daie, [wavax, daie])
   await setLiquidator(deployer, manager.address, liquidator.address, wavax, daie)
 
-  // rewards [crv => wavax => usdc.e] 
+  // rewards [crv => wavax => dai.e] 
   await setSwapRoutes(deployer, liquidator.address, joeRouter, crv, daie, [crv, wavax, daie])
   await setLiquidator(deployer, manager.address, liquidator.address, crv, daie)
+
+  // rewards [yeti => wavax => usdc] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, yeti, usdc, [yeti, wavax, usdc])
+  await setLiquidator(deployer, manager.address, liquidator.address, yeti, usdc)
+
+  // rewards [yeti => wavax => usdt] 
+  await setSwapRoutes(deployer, liquidator.address, joeRouter, yeti, usdt, [yeti, wavax, usdt])
+  await setLiquidator(deployer, manager.address, liquidator.address, yeti, usdt)
 }
 
 export const updateBank = async (bank: string, strategies: string[]) => {

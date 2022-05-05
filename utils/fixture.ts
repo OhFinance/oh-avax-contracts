@@ -37,15 +37,12 @@ export const setupBankTest = deployments.createFixture(async ({deployments, getN
 });
 
 export const setupUsdcBankTest  = deployments.createFixture(async ({deployments, getNamedAccounts}) => {
-  await deployments.fixture(["OhUsdcBank"])
+  await deployments.fixture(["OhUsdcBank", "OhUsdcYetiStrategy"])
   await updateManager();
   await updateLiquidator();
 
   const {deployer, worker, usdc} = await getNamedAccounts()
   const bank = await getUsdcBankContract(deployer)
-
-  // Add Bank and Strategies to Manager
-  await updateBank(bank.address, []);
 
   // buy USDC for worker
   await swapAvaxForTokens(worker, usdc, parseEther('1000'));
@@ -58,9 +55,6 @@ export const setupUsdtBankTest  = deployments.createFixture(async ({deployments,
 
   const {deployer, worker, usdt} = await getNamedAccounts()
   const bank = await getUsdtBankContract(deployer)
-
-  // Add Bank and Strategies to Manager
-  await updateBank(bank.address, []);
 
   // buy USDT for worker
   await swapAvaxForTokens(worker, usdt, parseEther('1000'));

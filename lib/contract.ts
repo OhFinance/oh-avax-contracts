@@ -1,7 +1,7 @@
 import { getBankContract, getUpgradeableProxy, getUpgradeableProxyAt } from "@ohfinance/oh-contracts/lib";
 import { ethers } from "hardhat";
-import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy,
-  OhAvalancheBankerJoeFoldingStrategy, OhCurveAPoolStrategy, OhAlphaHomoraV2Strategy, OhAvalancheManager } from "types";
+import { OhAvalancheAaveV2Strategy, OhAvalancheBenqiStrategy, OhAvalancheBankerJoeStrategy, OhAvalancheBankerJoeFoldingStrategy,
+  OhCurveAPoolStrategy, OhAlphaHomoraV2Strategy, OhYetiStrategy, OhAvalancheManager } from "types";
 
 export const getAvalancheManagerContract = async (signer: string, at?: string) => {
   if (at) {
@@ -50,6 +50,13 @@ export const getAlphaHomoraV2StrategyContract = async (signer: string, at?: stri
     return (await ethers.getContractAt('OhAlphaHomoraV2Strategy', at, signer)) as OhAlphaHomoraV2Strategy;
   }
   return (await ethers.getContract('OhAlphaHomoraV2Strategy', signer)) as OhAlphaHomoraV2Strategy;
+};
+
+export const getYetiStrategyContract = async (signer: string, at?: string) => {
+  if (at) {
+    return (await ethers.getContractAt('OhYetiStrategy', at, signer)) as OhYetiStrategy;
+  }
+  return (await ethers.getContract('OhYetiStrategy', signer)) as OhYetiStrategy;
 };
 
 export const getUsdcBankProxyContract = async (signer: string, at?: string) => {
@@ -214,4 +221,13 @@ export const getMimBankerJoeFoldingStrategyProxyContract = async (signer: string
 export const getMimBankerJoeFoldingStrategyContract = async (signer:string) => {
   const proxy = await getMimBankerJoeFoldingStrategyProxyContract(signer);
   return await getAvalancheBankerJoeFoldingStrategyContract(signer, proxy.address);
+}
+
+export const getUsdcYetiStrategyProxyContract = async (signer: string) => {
+  return await getUpgradeableProxy(signer, 'OhUsdcYetiStrategy');
+};
+
+export const getUsdcYetiStrategyContract = async (signer:string) => {
+  const proxy = await getUsdcYetiStrategyProxyContract(signer);
+  return await getYetiStrategyContract(signer, proxy.address);
 }

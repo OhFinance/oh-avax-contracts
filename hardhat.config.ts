@@ -90,6 +90,9 @@ const config: HardhatUserConfig = {
     crvAToken: {
       43114: '0x1337BedC9D22ecbe766dF105c9623922A27963EC'
     },
+    crvYusdPool: {
+      43114: '0x1da20Ac34187b2d9c74F729B85acB225D3341b25'
+    },
     ibUSDCv2Token: {
       43114: '0xD3843b60e69f958eF93BeC299467e6Ed301CbEeB' 
     },
@@ -135,6 +138,24 @@ const config: HardhatUserConfig = {
     wavax: {
       43114: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
     },
+    veYeti: {
+      43114: '0x88888888847DF39Cf1dfe1a05c904b4E603C9416'
+    },
+    veYetiEmissions: {
+      43114: '0x1ca865D89ccABc6805699aFc5F375b6366371B5B'
+    },
+    yeti: {
+      43114: '0x77777777777d4554c39223C354A05825b2E8Faa3'
+    },
+    yetiCrvLpFarm: {
+      43114: '0xfffFffFFfFe8aA117FE603a37188E666aF110F39'
+    },
+    yetiRewarder: {
+      43114: ''
+    },
+    yusd: {
+      43114: '0x111111111111ed1D73f860F57b2798b683f2d325'
+    }
   },
   typechain: {
     outDir: './types',
@@ -152,7 +173,7 @@ const config: HardhatUserConfig = {
       live: false,
       forking: {
         url: process.env.AVALANCHE_RPC_URL ?? 'https://api.avax.network/ext/bc/C/rpc',
-        blockNumber: 	13785820
+        blockNumber: 14134407
       }
     },
     fuji: {
