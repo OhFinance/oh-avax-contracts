@@ -60,8 +60,8 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
         initializeYetiCompounderStorage(yeti_, crvYusdPool, lpFarmPool_, veYeti_, veYetiEmissions, boostPercentage);
     }
 
-    function investedBalance(uint256 pid, address lpToken) public override view returns (uint256) {
-        if (lpToken == address(0)) {
+    function investedBalance(uint256 index) public override view returns (uint256) {
+        if (index == 1) {
             return 0;
         }
 
@@ -147,7 +147,7 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
         uint256 _stakedBalance;
         if (index == 1) {
             _stakedBalance = usdcBalance();
-        } else if (index == 2) {
+        } else {
             _stakedBalance = usdtBalance();
         }
 
@@ -155,16 +155,23 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
     }
 
     /// @notice Claim YETI rewards from the given pool
-    function claim() external override onlyAllowed {
+    function claim(uint256 index) external override onlyAllowed {
         address _yeti = yeti();
         IYetiLpFarmPool(lpFarmPool()).getReward();
         IVeYetiEmissions(veYetiEmissions()).getReward();
-        uint256 rewardAmount = IERC20(_yeti).balanceOf(address(this));
+        uint256 _rewardAmount = IERC20(_yeti).balanceOf(address(this));
 
-        if (rewardAmount > 0) {
-            uint256 boostAMount = rewardAmount.mul(boostPercentage()).div(100);
+        if (_rewardAmount > 0) {
+            uint256 _boostAMount = _rewardAmount.mul(boostPercentage()).div(100);
             // Calculate the balance ratio of all the underlying strategies and transfer accordingly
+            uint256 _usdcRewardAmount = calculateUsdcRewards(_rewardAmount);
+            uint256 _usdtRewardAmount = _rewardAmount - _usdcRewardAmount;
 
+            if (index == 1) {
+                TransferHelper.safeTokenTransfer(msg.sender, _yeti, _usdcRewardAmount);
+            } else {
+                TransferHelper.safeTokenTransfer(msg.sender, _yeti, _usdtRewardAmount);
+            }
         }
     }
 
@@ -208,27 +215,36 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
         }
     }
 
-    /// @notice Returns the ratio 
-    function getBalanceRatio() internal {
+    // /// @notice Returns the ratio 
+    // function supplyShare(uint256 underlying) internal returns(uint256[] memory) {
+    //     uint256 _usdcBalance = usdcBalance();
+    //     uint256 _usdtBalance = usdtBalance();
+    //     uint256 totalBalance = _usdcBalance + _usdtBalance;
+    //     uint256 usdcSupplyShare = _usdcBalance.mul(1e18).div(totalBalance);
+    //     uint256 usdtSupplyShare = _usdtBalance.mul(1e18).div(totalBalance);
+    //     uint256[2] memory supplyShares = [uint256(usdcSupplyShare), uint256(usdtSupplyShare)];
+
+    //     return supplyShares;
+    // }
+
+    function calculateUsdcRewards(uint256 rewardAmount) internal returns(uint256) {
         uint256 _usdcBalance = usdcBalance();
         uint256 _usdtBalance = usdtBalance();
-        uint256 totalBalance = _usdcBalance + _usdtBalance;
+        uint256 _totalBalance = _usdcBalance + _usdtBalance;
+        uint256 _usdcSupplyShare = _usdcBalance.mul(1e18).div(totalBalance);
+        uint256 _usdcRewardAmount = usdcSupplyShare.mul(totalBalance).div(1e18);
 
-        uint256 usdcSupplyShare = _usdcBalance.mul(1e18).div(totalBalance);
-        uint256 usdtSupplyShare = _usdtBalance.mul(1e18).div(totalBalance);
-
-
-        
+        return usdcRewardAmount;
     }
 
     /// @notice Deposit YETI to veYETI contract
     function depositYetiForBoost() external override {
         address _yeti = yeti();
         address _veYeti = veYeti();
-        uint256 amount = IERC20(_yeti).balanceOf(address(this));
-        if (amount > 0) {
-            IERC20(_yeti).safeIncreaseAllowance(_veYeti, amount);
-            IVeYeti(_veYeti).deposit(amount);
+        uint256 _amount = IERC20(_yeti).balanceOf(address(this));
+        if (_amount > 0) {
+            IERC20(_yeti).safeIncreaseAllowance(_veYeti, _amount);
+            IVeYeti(_veYeti).deposit(_amount);
         }
     }
 
