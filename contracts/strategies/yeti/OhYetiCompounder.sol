@@ -37,7 +37,6 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
         assert(lpFarmPool() == address(0));
         assert(veYeti() == address(0));
         assert(veYetiEmissions() == address(0));
-        assert(boostPercentage() == address(0));
     }
 
     /// @notice Initialize the Yeti Compounder Proxy
@@ -57,15 +56,18 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
         uint256 boostPercentage
     ) public initializer {
         initializeSubscriber(registry_);
-        initializeYetiCompounderStorage(yeti_, crvYusdPool, lpFarmPool_, veYeti_, veYetiEmissions, boostPercentage);
+        initializeYetiCompounderStorage(yeti_, crvYusdPool_, lpFarmPool_, veYeti_, veYetiEmissions_, boostPercentage);
     }
 
     function investedBalance(uint256 index) public override view returns (uint256) {
+        uint256 _balance;
         if (index == 1) {
-            return 0;
+            _balance = usdcBalance();
+        } else if (index == 2) {
+            _balance = usdtBalance();
         }
 
-        return IYetiMasterYetiV2(lpToken).userInfo(pid, address(this)).amount;
+        return _balance;
     }
 
     /// @notice Add liquidity to Curve's YUSD Pool, receiving Curve LP Tokens in return
@@ -78,7 +80,7 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
         uint256 index,
         uint256 amount,
         uint256 minMint
-    ) internal onlyAllowed{
+    ) external override onlyAllowed{
         if (amount == 0) {
             return;
         }
@@ -105,7 +107,7 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
         uint256 index,
         uint256 amount,
         uint256 minAmount
-    ) internal onlyAllowed {
+    ) external override onlyAllowed {
         if (amount == 0) {
             return;
         }
@@ -115,7 +117,7 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
         uint256 withdrawn = ICurveYusdPool(_pool).remove_liquidity_one_coin(amount, int128(index), minAmount);
         require(withdrawn >= minAmount, "YETI: Withdraw failed");
         
-        return TransferHelper.safeTokenTransfer(recipient, underlying, withdrawn);
+        TransferHelper.safeTokenTransfer(recipient, underlying, withdrawn);
 
         decreaseBalance(withdrawn, index);
     }
@@ -143,7 +145,7 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
     }
 
     /// @notice Get the balance of staked tokens in the YETI LP Farm Pool
-    function staked(uint256 index) external view onlyAllowed returns (uint256) {
+    function staked(uint256 index) external view override onlyAllowed returns (uint256) {
         uint256 _stakedBalance;
         if (index == 1) {
             _stakedBalance = usdcBalance();
@@ -231,10 +233,10 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
         uint256 _usdcBalance = usdcBalance();
         uint256 _usdtBalance = usdtBalance();
         uint256 _totalBalance = _usdcBalance + _usdtBalance;
-        uint256 _usdcSupplyShare = _usdcBalance.mul(1e18).div(totalBalance);
-        uint256 _usdcRewardAmount = usdcSupplyShare.mul(totalBalance).div(1e18);
+        uint256 _usdcSupplyShare = _usdcBalance.mul(1e18).div(_totalBalance);
+        uint256 _usdcRewardAmount = _usdcSupplyShare.mul(_totalBalance).div(1e18);
 
-        return usdcRewardAmount;
+        return _usdcRewardAmount;
     }
 
     /// @notice Deposit YETI to veYETI contract
@@ -244,7 +246,7 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
         uint256 _amount = IERC20(_yeti).balanceOf(address(this));
         if (_amount > 0) {
             IERC20(_yeti).safeIncreaseAllowance(_veYeti, _amount);
-            IVeYeti(_veYeti).deposit(_amount);
+            //IVeYeti(_veYeti).deposit(_amount);
         }
     }
 
@@ -252,7 +254,7 @@ contract OhYetiCompounder is OhSubscriberUpgradeable, OhYetiCompounderStorage, I
     /// @param amount The amount of YETI to withdraw
     function withdrawYetiForBoost(uint256 amount) external override onlyGovernance {
         if (amount > 0) {
-            IVeYeti(veYeti()).withdraw(amount);
+            //IVeYeti(veYeti()).withdraw(amount);
         }
     }
 
